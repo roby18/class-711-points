@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>711班级积分表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fredoka:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  /* Morandi Palette */
+  --yellow:      #e8d5a8;  --yellow-deep: #c9b47a;  --yellow-bg:   #fdf6e3;
+  --green:       #a8c4a2;  --green-deep:  #84a37c;  --green-bg:    #eaf3e6;
+  --blue:        #9db4cc;  --blue-deep:   #7393b0;  --blue-bg:     #e6eef8;
+  --pink:        #d4a9bb;  --pink-deep:   #bb8a9e;  --pink-bg:     #f5e8ee;
+  --purple:      #b8a8cc;  --purple-deep: #9478b8;  --purple-bg:   #eee6f6;
+  --bg:        #faf6ee;  --bg-warm:   #f3ece0;  --text:      #4a4458;
+  --text-dim:  #8b8598;  --text-light:#b8b0c0;  --white:     #ffffff;
+  /* Claymorphism */
+  --clay-r: 24px;
+  --shadow-sm: 0 2px 8px rgba(74,68,88,0.06), 0 0.5px 2px rgba(74,68,88,0.04);
+  --shadow-md: 0 6px 24px rgba(74,68,88,0.08), 0 2px 6px rgba(74,68,88,0.04), inset 0 -2px 4px rgba(255,255,255,0.35);
+  --shadow-lg: 0 12px 40px rgba(74,68,88,0.10), 0 4px 12px rgba(74,68,88,0.06), inset 0 -3px 6px rgba(255,255,255,0.4);
+  --shadow-press: 0 1px 4px rgba(74,68,88,0.08), inset 0 2px 4px rgba(0,0,0,0.05);
+  /* transitions */
+  --t:   0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  --tb:  0.35s cubic-bezier(0.34, 1.5, 0.65, 1);
+}
+html { font-size: 16px; height: 100%; overflow: hidden; }
+body {
+  font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg); color: var(--text); height: 100%;
+  overflow: hidden; -webkit-font-smoothing: antialiased;
+}
+
+/* ===== SPLASH ===== */
+#splash {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: #faf6ee;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+  overflow: hidden;
+}
+#splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* Four theme-color floating blobs */
+.splash-blob {
+  position: absolute; border-radius: 50%; filter: blur(80px);
+  animation: blobFloat 9s ease-in-out infinite;
+  opacity: 0.32; pointer-events: none;
+}
+.splash-blob.yellow { background: var(--yellow); width: 260px; height: 260px; top: 8%; left: -6%; animation-delay: 0s; }
+.splash-blob.green  { background: var(--green);  width: 230px; height: 230px; top: 55%; right: -8%; animation-delay: 2.2s; }
+.splash-blob.blue   { background: var(--blue);   width: 240px; height: 240px; bottom: 5%; left: 10%; animation-delay: 4.5s; }
+.splash-blob.pink   { background: var(--pink);   width: 210px; height: 210px; top: 20%; right: 18%; animation-delay: 1.1s; }
+@keyframes blobFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(14px, -20px) scale(1.06); }
+  66% { transform: translate(-10px, 12px) scale(0.94); }
+}
+
+/* Decorative emoji dots (subtle) */
+.splash-emoji-dot {
+  position: absolute; font-size: 1.8rem; opacity: 0.18; pointer-events: none;
+  animation: dotBreathe 5s ease-in-out infinite;
+}
+@keyframes dotBreathe {
+  0%, 100% { opacity: 0.12; transform: scale(1); }
+  50% { opacity: 0.28; transform: scale(1.12); }
+}
+
+.splash-box {
+  position: relative; z-index: 2; text-align: center;
+  animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-radius: 28px; padding: 2.2rem 2.6rem;
+  box-shadow: 0 8px 32px rgba(74,68,88,0.06), 0 2px 8px rgba(74,68,88,0.03);
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+.splash-icon-row { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.7rem; }
+.splash-icon-dot {
+  width: 14px; height: 14px; border-radius: 50%; display: inline-block; flex-shrink: 0;
+}
+.splash-icon-dot.c-yellow { background: var(--yellow); }
+.splash-icon-dot.c-green  { background: var(--green); }
+.splash-icon-dot.c-blue   { background: var(--blue); }
+.splash-icon-dot.c-pink   { background: var(--pink); }
+.splash-title {
+  font-family: 'Fredoka', 'Noto Sans SC', sans-serif; font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 700; color: var(--text);
+  background: linear-gradient(135deg, #b8944a 0%, #5c8a4f 33%, #3d6a8e 66%, #9e4a62 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 0.3rem;
+  position: relative; display: inline-block;
+  filter: drop-shadow(0 1px 3px rgba(74,68,88,0.12));
+}
+/* Shimmer sweep overlay */
+.title-shimmer {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 45%, rgba(255,255,255,0.55) 55%, transparent 100%);
+  background-size: 260% 100%;
+  animation: shimmer 3.5s ease-in-out infinite;
+  pointer-events: none; border-radius: inherit;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-60% 0} }
+.splash-sub { font-size: 0.95rem; color: #6b5e4a; font-weight: 400; margin-bottom: 1.8rem; }
+.splash-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.85rem 2.6rem; border: none; border-radius: 50px;
+  font-family: 'Fredoka', 'Noto Sans SC', sans-serif; font-size: 1.1rem; font-weight: 600;
+  color: #fff; cursor: pointer;
+  background: linear-gradient(135deg, #c9b47a, #84a37c, #7393b0, #bb8a9e);
+  background-size: 300% 300%; animation: gradShift 5s ease infinite;
+  box-shadow: 0 4px 20px rgba(187,138,158,0.25); transition: all var(--t);
+}
+.splash-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(187,138,158,0.35); }
+.splash-btn:active { transform: scale(0.96); box-shadow: var(--shadow-press); }
+@keyframes gradShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+
+/* ===== MAIN APP ===== */
+#app { height: 100%; display: flex; flex-direction: column; opacity: 0; transition: opacity 0.5s ease; }
+#app.visible { opacity: 1; }
+
+.app-header {
+  padding: 0.85rem 1.2rem; display: flex; align-items: center; justify-content: space-between;
+  background: rgba(250,246,238,0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0,0,0,0.04); flex-shrink: 0;
+}
+.header-left { display: flex; align-items: center; gap: 0.65rem; }
+.header-logo {
+  width: 38px; height: 38px; border-radius: 11px;
+  background: linear-gradient(135deg, var(--yellow), var(--pink));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; color: #fff; box-shadow: var(--shadow-sm);
+}
+.header-title { font-family: 'Fredoka', 'Noto Sans SC', sans-serif; font-size: 1.15rem; font-weight: 600; }
+.header-meta { font-size: 0.73rem; color: var(--text-dim); }
+
+.app-main { flex: 1; overflow-y: auto; padding: 2rem 1.5rem; display: flex; align-items: flex-start; justify-content: center; }
+.dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; max-width: 520px; width: 100%; }
+
+.dash-card {
+  position: relative; border-radius: var(--clay-r); padding: 1.7rem 1.1rem;
+  cursor: pointer; transition: all var(--tb); border: none;
+  display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+  text-align: center; overflow: hidden;
+}
+.dash-card::before {
+  content: ''; position: absolute; top: -35%; right: -25%; width: 100%; height: 100%;
+  border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.55), transparent 68%);
+  pointer-events: none;
+}
+.dash-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: var(--shadow-lg); }
+.dash-card:active { transform: translateY(0) scale(0.96); box-shadow: var(--shadow-press); }
+.card-yellow { background: linear-gradient(160deg, var(--yellow-bg), var(--yellow)); box-shadow: var(--shadow-md), inset 0 -2px 4px rgba(201,180,122,0.16); }
+.card-green  { background: linear-gradient(160deg, var(--green-bg),  var(--green));  box-shadow: var(--shadow-md), inset 0 -2px 4px rgba(132,163,124,0.16); }
+.card-blue   { background: linear-gradient(160deg, var(--blue-bg),   var(--blue));   box-shadow: var(--shadow-md), inset 0 -2px 4px rgba(115,147,176,0.16); }
+.card-pink   { background: linear-gradient(160deg, var(--pink-bg),   var(--pink));   box-shadow: var(--shadow-md), inset 0 -2px 4px rgba(187,138,158,0.16); }
+.card-icon { width: 50px; height: 50px; border-radius: 15px; background: rgba(255,255,255,0.65);
+  display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04); transition: transform var(--tb); position: relative; z-index: 1; }
+.dash-card:hover .card-icon { transform: scale(1.08) rotate(-4deg); }
+.card-label { font-family: 'Fredoka', 'Noto Sans SC', sans-serif; font-size: 1.08rem; font-weight: 600; position: relative; z-index: 1; }
+.card-desc { font-size: 0.76rem; color: var(--text-dim); font-weight: 300; position: relative; z-index: 1; }
+
+.app-status {
+  padding: 0.5rem 1.2rem; display: flex; align-items: center; justify-content: center;
+  gap: 1.2rem; font-size: 0.7rem; color: var(--text-dim);
+  background: var(--bg); border-top: 1px solid rgba(0,0,0,0.03); flex-shrink: 0;
+}
+.status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green-deep); }
+.status-dot.dirty { background: var(--yellow-deep); }
+
+/* ===== WATERMARK ===== */
+.watermark {
+  position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+  z-index: 8000; font-size: 0.9rem; color: #4a3f2f; opacity: 0.72;
+  font-family: 'Caveat', cursive; font-style: italic; font-weight: 700;
+  letter-spacing: 0.04em;
+  pointer-events: none; user-select: none;
+  text-shadow: 0 1px 3px rgba(255,255,255,0.8);
+}
+
+/* ===== BACK BUTTON (bottom-right) ===== */
+#back-btn {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 3500;
+  width: 52px; height: 52px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg, var(--yellow-deep), var(--pink-deep));
+  color: #fff; font-size: 1.4rem; cursor: pointer;
+  box-shadow: 0 4px 18px rgba(187,138,158,0.35);
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--t); opacity: 0; visibility: hidden; pointer-events: none;
+}
+#back-btn.show { opacity: 1; visibility: visible; pointer-events: auto; }
+#back-btn:hover { transform: scale(1.08); }
+#back-btn:active { transform: scale(0.92); }
+
+/* ===== PANEL OVERLAY (shared) ===== */
+.panel-overlay {
+  position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.16);
+  opacity: 0; visibility: hidden; transition: opacity 0.28s ease, visibility 0.28s ease;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.panel-overlay.active { opacity: 1; visibility: visible; }
+.panel {
+  background: var(--white); border-radius: 22px 22px 0 0;
+  width: 100%; max-width: 580px; max-height: 88vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 -6px 36px rgba(0,0,0,0.1);
+  transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden; position: relative;
+}
+.panel-overlay.active .panel { transform: translateY(0); }
+
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.2rem; border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0;
+}
+.panel-title { font-family: 'Fredoka', 'Noto Sans SC', sans-serif; font-size: 1.05rem; font-weight: 600; }
+.panel-close {
+  width: 32px; height: 32px; border-radius: 9px; border: none; background: var(--bg-warm);
+  cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+  transition: all var(--t); color: var(--text-dim);
+}
+.panel-close:hover { background: #e6ddcf; color: var(--text); }
+.panel-body { flex: 1; overflow-y: auto; padding: 1rem 1.2rem 5rem; }
+
+/* ===== SHARED WIDGETS ===== */
+/* Tabs (point-tabs / election-tabs) */
+.tabs { display: flex; gap: 0.35rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.tab-btn {
+  padding: 0.55rem 0.9rem; border: none; border-radius: 11px;
+  font-size: 0.85rem; cursor: pointer; background: var(--bg-warm); color: var(--text-dim);
+  font-family: 'Noto Sans SC', sans-serif; font-weight: 500; transition: all var(--t);
+}
+.tab-btn.active { background: var(--white); color: var(--text); box-shadow: var(--shadow-sm); }
+.tab-btn.primary-active { border: 2px solid var(--green-deep); background: var(--green-bg); color: var(--green-deep); }
+.tab-btn.info-active    { border: 2px solid var(--blue-deep);  background: var(--blue-bg);  color: var(--blue-deep);  }
+.tab-btn.danger-active  { border: 2px solid var(--pink-deep); background: var(--pink-bg); color: var(--pink-deep); }
+
+/* Student search + grid */
+.student-search {
+  width: 100%; padding: 0.65rem 0.9rem; border: 2px solid rgba(0,0,0,0.05); border-radius: 12px;
+  font-size: 0.9rem; font-family: 'Noto Sans SC', sans-serif; background: var(--bg-warm);
+  outline: none; transition: border-color var(--t); margin-bottom: 0.8rem;
+}
+.student-search:focus { border-color: var(--blue); }
+.student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 0.4rem; max-height: 165px; overflow-y: auto; margin-bottom: 0.9rem; }
+.student-chip {
+  padding: 0.4rem 0.6rem; border-radius: 10px; border: 2px solid transparent; cursor: pointer;
+  background: var(--bg-warm); font-size: 0.8rem; text-align: center; transition: all var(--t);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.student-chip:hover { border-color: var(--blue); background: var(--white); }
+.student-chip.selected { border-color: var(--blue-deep); background: var(--blue-bg); color: var(--blue-deep); font-weight: 500; }
+
+/* Reason list */
+.reason-list { display: flex; flex-direction: column; gap: 0.35rem; max-height: 195px; overflow-y: auto; margin-bottom: 0.9rem; }
+.reason-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.65rem 0.85rem; border-radius: 12px; border: 2px solid transparent; cursor: pointer;
+  background: var(--bg-warm); transition: all var(--t);
+}
+.reason-item:hover { border-color: var(--green); background: var(--white); }
+.reason-item.selected { border-color: var(--green-deep); background: var(--green-bg); }
+.reason-label { font-size: 0.86rem; }
+.reason-pts { font-family: 'Fredoka', sans-serif; font-size: 0.92rem; font-weight: 600; padding: 0.15rem 0.45rem; border-radius: 7px; background: rgba(255,255,255,0.6); }
+.pt-pos { color: var(--green-deep); } .pt-neg { color: var(--pink-deep); }
+
+/* Section title */
+.section-title {
+  font-family: 'Fredoka', 'Noto Sans SC', sans-serif; font-size: 0.9rem; font-weight: 600;
+  color: var(--text-dim); margin-bottom: 0.6rem;
+}
+
+/* Button row */
+.btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+.btn-outline {
+  padding: 0.5rem 0.9rem; border: 1.5px solid var(--text-light); border-radius: 10px;
+  background: transparent; cursor: pointer; font-size: 0.8rem; color: var(--text);
+  font-family: 'Noto Sans SC', sans-serif; transition: all var(--t);
+}
+.btn-outline:hover { border-color: var(--text-dim); background: var(--bg-warm); }
+.btn-outline.active { border-color: var(--blue-deep); background: var(--blue-bg); color: var(--blue-deep); }
+
+/* Full-width primary button */
+.btn-full {
+  width: 100%; padding: 0.8rem; border: none; border-radius: 14px;
+  font-family: 'Fredoka', 'Noto Sans SC', sans-serif; font-size: 0.95rem; font-weight: 600;
+  color: #fff; cursor: pointer; transition: all var(--t); box-shadow: var(--shadow-sm);
+}
+.btn-full:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-full:active { transform: scale(0.97); box-shadow: var(--shadow-press); }
+.btn-full:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+.btn-add { background: linear-gradient(135deg, var(--green), var(--green-deep)); }
+.btn-sub { background: linear-gradient(135deg, var(--pink), var(--pink-deep)); }
+
+/* Input row */
+.input-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.8rem; flex-wrap: wrap; }
+.input-row label { font-size: 0.82rem; color: var(--text-dim); white-space: nowrap; }
+.input-row input {
+  width: 70px; padding: 0.45rem; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 9px;
+  font-size: 0.86rem; text-align: center; font-family: 'Fredoka', sans-serif; outline: none;
+  transition: border-color var(--t); background: var(--bg-warm);
+}
+.input-row input:focus { border-color: var(--blue); }
+.input-row .hint { font-size: 0.75rem; color: var(--text-dim); }
+
+/* Student manage list */
+.stu-manage-list { max-height: 220px; overflow-y: auto; }
+.stu-manage-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.5rem 0; border-bottom: 1px solid rgba(0,0,0,0.04); font-size: 0.86rem;
+}
+.stu-name { flex: 1; }
+.stu-pts { color: var(--text-dim); font-size: 0.78rem; margin-right: 0.5rem; }
+.btn-sm-del {
+  padding: 0.2rem 0.5rem; border: 1.5px solid #fca5a5; border-radius: 7px;
+  background: transparent; color: #dc2626; font-size: 0.72rem; cursor: pointer;
+  font-family: 'Noto Sans SC', sans-serif; transition: all var(--t);
+}
+.btn-sm-del:hover { background: #fef2f2; border-color: #dc2626; }
+
+/* Toggle switch */
+.toggle-switch { position: relative; display: inline-block; width: 48px; height: 26px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background: #d1ccc0; border-radius: 26px; transition: all var(--t);
+}
+.toggle-slider::before {
+  content: ''; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px;
+  background: white; border-radius: 50%; transition: all var(--t); box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--green-deep); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+/* Password prompt modal */
+#pwd-prompt-overlay {
+  position: fixed; inset: 0; z-index: 5000; display: none;
+  align-items: center; justify-content: center;
+  background: rgba(74,68,88,0.25); backdrop-filter: blur(6px);
+}
+#pwd-prompt-overlay.active { display: flex; }
+#pwd-prompt-overlay.off { z-index: 4500; }
+#pwd-prompt-box {
+  background: var(--white); border-radius: 20px; padding: 1.8rem 1.6rem 1.4rem;
+  box-shadow: var(--shadow-lg); width: min(92vw, 320px); animation: fadeScale 0.25s ease;
+}
+@keyframes fadeScale { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
+
+/* Group add member overlay */
+#group-add-overlay {
+  position: fixed; inset: 0; z-index: 4800; display: none;
+  align-items: center; justify-content: center;
+  background: rgba(74,68,88,0.25); backdrop-filter: blur(6px);
+}
+#group-add-overlay.active { display: flex; }
+#group-add-box {
+  background: var(--white); border-radius: 20px; padding: 1.5rem 1.4rem 1.2rem;
+  box-shadow: var(--shadow-lg); width: min(94vw, 420px); max-height: 80vh; overflow-y: auto;
+  animation: fadeScale 0.25s ease;
+}
+.ga-stu-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.4rem;
+  max-height: 360px; overflow-y: auto; padding-right: 0.2rem;
+}
+.ga-stu-chip {
+  padding: 0.4rem 0.5rem; border-radius: 10px; font-size: 0.78rem; text-align: center;
+  cursor: pointer; transition: all var(--t); border: 2px solid rgba(0,0,0,0.06);
+  background: var(--bg-warm); color: var(--text);
+}
+.ga-stu-chip.checked {
+  background: var(--green-bg); border-color: var(--green-deep); color: var(--green-deep);
+  font-weight: 600;
+}
+.ga-stu-chip.in-group {
+  background: #f0f0f0; border-color: #ddd; color: var(--text-light); cursor: default; opacity: 0.55;
+}
+
+/* Add row (input+button) */
+.add-row { display: flex; gap: 0.4rem; margin-bottom: 0.6rem; }
+.add-row input {
+  flex: 1; padding: 0.5rem 0.7rem; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 10px;
+  font-size: 0.86rem; font-family: 'Noto Sans SC', sans-serif; outline: none; background: var(--bg-warm);
+}
+.add-row input:focus { border-color: var(--blue); }
+.add-row .btn-outline { flex-shrink: 0; }
+
+/* ===== CATEGORY OPTION BUTTONS ===== */
+.cat-option-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem;
+  margin: 0.3rem 0 0.7rem;
+}
+@media (max-width: 400px) { .cat-option-grid { grid-template-columns: repeat(3, 1fr); } }
+.cat-option-btn {
+  padding: 0.65rem 0.2rem; border-radius: 14px; border: 2px solid transparent;
+  background: var(--bg-warm); color: var(--text); font-size: 0.78rem; font-weight: 600;
+  font-family: 'Noto Sans SC', sans-serif; cursor: pointer;
+  box-shadow: var(--shadow-sm); transition: all var(--t); text-align: center;
+  white-space: nowrap;
+}
+.cat-option-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.cat-option-btn.selected {
+  background: linear-gradient(135deg, var(--yellow) 0%, var(--green) 50%, var(--blue) 100%);
+  border-color: var(--green-deep); color: var(--text); box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* ===== POINTS VALUE ROW ===== */
+.pts-value-row {
+  display: flex; align-items: center; gap: 0.5rem;
+  margin: 0.3rem 0 0.7rem; padding: 0.7rem 0.9rem; border-radius: 14px;
+  background: var(--bg-warm); box-shadow: var(--shadow-sm);
+}
+.pts-value-row label { font-size: 0.82rem; color: var(--text-dim); white-space: nowrap; }
+.pts-stepper { display: flex; align-items: center; gap: 0.4rem; }
+.stepper-btn {
+  width: 32px; height: 32px; border-radius: 10px; border: none;
+  background: var(--white); color: var(--text); font-size: 1rem; line-height: 1;
+  cursor: pointer; box-shadow: var(--shadow-sm); transition: all var(--t); flex-shrink: 0;
+}
+.stepper-btn:active { box-shadow: var(--shadow-press); transform: scale(0.95); }
+.pts-stepper input[type=number] {
+  width: 56px; text-align: center; padding: 0.35rem 0.3rem; border-radius: 10px;
+  border: 1.5px solid rgba(0,0,0,0.06); font-size: 1rem; font-weight: 700;
+  font-family: 'Noto Sans SC', sans-serif; background: #fff; color: var(--text); outline: none;
+}
+.pts-stepper input[type=number]:focus { border-color: var(--blue); }
+.pts-stepper input[type=number]::-webkit-outer-spin-button,
+.pts-stepper input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* ===== MODAL (custom confirm) ===== */
+#modal-overlay {
+  position: fixed; inset: 0; z-index: 4000; background: rgba(0,0,0,0.22);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden; transition: all 0.2s ease;
+}
+#modal-overlay.active { opacity: 1; visibility: visible; }
+#modal-box {
+  background: #fff; border-radius: 18px; padding: 1.4rem; max-width: 320px; width: 88%;
+  box-shadow: 0 10px 36px rgba(0,0,0,0.1); text-align: center;
+  transform: scale(0.9); transition: transform 0.24s cubic-bezier(0.34, 1.5, 0.65, 1);
+}
+#modal-overlay.active #modal-box { transform: scale(1); }
+#modal-msg { font-size: 0.92rem; margin-bottom: 1.1rem; line-height: 1.5; color: var(--text); }
+#modal-btns { display: flex; gap: 0.5rem; }
+#modal-cancel, #modal-ok {
+  flex: 1; padding: 0.55rem; border-radius: 11px; border: none; font-size: 0.85rem;
+  font-family: 'Noto Sans SC', sans-serif; font-weight: 500; cursor: pointer; transition: all var(--t);
+}
+#modal-cancel { background: var(--bg-warm); color: var(--text-dim); }
+#modal-cancel:hover { background: #e6ddcf; }
+#modal-ok { background: var(--pink-deep); color: #fff; }
+#modal-ok.ok-green { background: var(--green-deep); }
+
+/* ===== TOAST ===== */
+#toast {
+  position: fixed; top: 1.1rem; left: 50%; transform: translateX(-50%) translateY(-120%);
+  z-index: 5000; padding: 0.65rem 1.3rem; border-radius: 50px;
+  background: var(--text); color: #fff; font-size: 0.86rem; font-weight: 500;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.1);
+  transition: transform 0.32s cubic-bezier(0.34,1.5,0.65,1); pointer-events: none;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ===== SCROLLBAR (WebKit) ===== */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 4px; }
+
+/* ===== MOBILE ===== */
+@media (max-width: 480px) {
+  .dashboard { gap: 0.7rem; }
+  .dash-card { padding: 1.3rem 0.9rem; }
+  .card-icon { width: 42px; height: 42px; font-size: 1.2rem; }
+  .student-grid { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== SPLASH SCREEN ===== -->
+<div id="splash">
+  <!-- Four Morandi color blobs -->
+  <div class="splash-blob yellow"></div>
+  <div class="splash-blob green"></div>
+  <div class="splash-blob blue"></div>
+  <div class="splash-blob pink"></div>
+
+  <!-- Subtle emoji decorations -->
+  <span class="splash-emoji-dot" style="top:12%;left:8%;animation-delay:0s;">📋</span>
+  <span class="splash-emoji-dot" style="top:78%;right:10%;animation-delay:1.6s;">⭐</span>
+  <span class="splash-emoji-dot" style="bottom:15%;left:18%;animation-delay:3.2s;">🌟</span>
+
+  <!-- Center card -->
+  <div class="splash-box">
+    <div class="splash-icon-row">
+      <span class="splash-icon-dot c-yellow"></span>
+      <span class="splash-icon-dot c-green"></span>
+      <span class="splash-icon-dot c-blue"></span>
+      <span class="splash-icon-dot c-pink"></span>
+    </div>
+    <h1 class="splash-title">711班级积分表<span class="title-shimmer"></span></h1>
+    <p class="splash-sub">让每一份努力都被看见 ✨</p>
+    <button class="splash-btn" onclick="startApp()">开始使用</button>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app">
+  <header class="app-header">
+    <div class="header-left">
+      <div class="header-logo">📋</div>
+      <div>
+        <div class="header-title">711班级积分表</div>
+        <div class="header-meta" id="header-meta">暂无数据</div>
+      </div>
+    </div>
+  </header>
+  <main class="app-main">
+    <div class="dashboard">
+      <button class="dash-card card-yellow" onclick="openPanel('points')">
+        <div class="card-icon">📝</div>
+        <div class="card-label">加分减分</div>
+        <div class="card-desc">记录日常表现</div>
+      </button>
+      <button class="dash-card card-green" onclick="openPanel('auction')">
+        <div class="card-icon">🎁</div>
+        <div class="card-label">积分拍卖</div>
+        <div class="card-desc">积分兑换奖励</div>
+      </button>
+      <button class="dash-card card-blue" onclick="openPanel('election')">
+        <div class="card-icon">🏅</div>
+        <div class="card-label">班级评选</div>
+        <div class="card-desc">民主投票评选</div>
+      </button>
+      <button class="dash-card card-pink" onclick="openPanel('settings')">
+        <div class="card-icon">⚙️</div>
+        <div class="card-label">设置</div>
+        <div class="card-desc">名单与数据管理</div>
+      </button>
+    </div>
+  </main>
+  <footer class="app-status">
+    <span id="status-students">👥 0位同学</span>
+    <span id="status-total">⭐ 0总积分</span>
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-save">已保存</span>
+  </footer>
+</div>
+
+<!-- ===== WATERMARK ===== -->
+<div class="watermark">writeby Singqing</div>
+
+<!-- ===== BACK BUTTON ===== -->
+<button id="back-btn" onclick="goBack()">⬅</button>
+
+<!-- ===== POINTS PANEL ===== -->
+<div class="panel-overlay" id="points-overlay">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">📝 加分减分</span>
+      <button class="panel-close" onclick="closePanel('points')">✕</button>
+    </div>
+    <div class="panel-body" id="points-body"></div>
+  </div>
+</div>
+
+<!-- ===== AUCTION PANEL (placeholder will be rendered by JS) ===== -->
+<div class="panel-overlay" id="auction-overlay">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">🎁 积分拍卖</span>
+      <button class="panel-close" onclick="closePanel('auction')">✕</button>
+    </div>
+    <div class="panel-body" id="auction-body"></div>
+  </div>
+</div>
+
+<!-- ===== ELECTION PANEL ===== -->
+<div class="panel-overlay" id="election-overlay">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">🏅 班级评选</span>
+      <button class="panel-close" onclick="closePanel('election')">✕</button>
+    </div>
+    <div class="panel-body" id="election-body"></div>
+  </div>
+</div>
+
+<!-- ===== SETTINGS PANEL ===== -->
+<div class="panel-overlay" id="settings-overlay">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">⚙️ 设置与管理</span>
+      <button class="panel-close" onclick="closePanel('settings')">✕</button>
+    </div>
+    <div class="panel-body" id="settings-body"></div>
+  </div>
+</div>
+
+<!-- ===== MODAL (custom confirm) ===== -->
+<div id="modal-overlay">
+  <div id="modal-box">
+    <div id="modal-msg"></div>
+    <div id="modal-btns">
+      <button id="modal-cancel">取消</button>
+      <button id="modal-ok">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PASSWORD PROMPT ===== -->
+<div id="pwd-prompt-overlay">
+  <div id="pwd-prompt-box">
+    <div style="font-size:1.5rem;text-align:center;margin-bottom:0.4rem;">🔐</div>
+    <div id="pwd-prompt-msg" style="font-size:0.9rem;text-align:center;margin-bottom:0.8rem;color:var(--text-dim);">请输入密码以继续</div>
+    <input id="pwd-prompt-input" type="password" placeholder="输入密码…" style="width:100%;padding:0.6rem 0.9rem;border:2px solid rgba(0,0,0,0.08);border-radius:12px;font-size:0.92rem;text-align:center;font-family:'Noto Sans SC',sans-serif;outline:none;background:var(--bg-warm);margin-bottom:0.7rem;" onkeydown="if(event.key==='Enter')pwdPromptSubmit()">
+    <div style="display:flex;gap:0.5rem;">
+      <button style="flex:1;padding:0.55rem;border:1.5px solid rgba(0,0,0,0.08);border-radius:12px;background:transparent;font-size:0.85rem;cursor:pointer;font-family:'Noto Sans SC',sans-serif;color:var(--text-dim);" onclick="pwdPromptCancel()">取消</button>
+      <button style="flex:1;padding:0.55rem;border:none;border-radius:12px;background:var(--green-deep);color:#fff;font-size:0.85rem;cursor:pointer;font-family:'Noto Sans SC',sans-serif;" onclick="pwdPromptSubmit()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== GROUP ADD MEMBER OVERLAY ===== -->
+<div id="group-add-overlay">
+  <div id="group-add-box">
+    <div style="font-size:0.95rem;font-weight:600;margin-bottom:0.2rem;text-align:center;">👥 <span id="ga-title"></span></div>
+    <div style="font-size:0.74rem;color:var(--text-dim);text-align:center;margin-bottom:0.7rem;">点击选择要加入的同学（可多选）</div>
+    <div id="ga-stu-grid" class="ga-stu-grid"></div>
+    <div style="display:flex;gap:0.5rem;margin-top:0.8rem;">
+      <button id="ga-cancel" style="flex:1;padding:0.55rem;border:1.5px solid rgba(0,0,0,0.08);border-radius:12px;background:transparent;font-size:0.85rem;cursor:pointer;font-family:'Noto Sans SC',sans-serif;color:var(--text-dim);" onclick="cancelGroupAdd()">取消</button>
+      <button id="ga-confirm" style="flex:1;padding:0.55rem;border:none;border-radius:12px;background:var(--green-deep);color:#fff;font-size:0.85rem;cursor:pointer;font-family:'Noto Sans SC',sans-serif;" onclick="confirmGroupAdd()">确认添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast"></div>
+
+<script>
+/* ================================================================
+   APP STATE — loaded from localStorage on init
+   ================================================================ */
+const CATEGORIES = ['出勤', '学习', '卫生', '纪律', '文明礼仪'];
+
+const DEFAULT_STATE = {
+  students: [],          // [{id, name, points}]
+  groups: [],            // [{id, name, memberIds:[studentId,...]}]
+  pointRules: {
+    add: [
+      { cat:'出勤',     label:'按时到校',         pts:2  },
+      { cat:'出勤',     label:'全勤一周',         pts:5  },
+      { cat:'学习',     label:'作业按时完成',     pts:2  },
+      { cat:'学习',     label:'作业优秀',         pts:3  },
+      { cat:'学习',     label:'课堂发言积极',     pts:2  },
+      { cat:'学习',     label:'考试进步显著',     pts:5  },
+      { cat:'学习',     label:'校级以上获奖',     pts:10 },
+      { cat:'卫生',     label:'值日认真',         pts:2  },
+      { cat:'卫生',     label:'卫生检查优秀',     pts:3  },
+      { cat:'纪律',     label:'遵守课堂纪律',     pts:2  },
+      { cat:'纪律',     label:'主动维护秩序',     pts:3  },
+      { cat:'文明礼仪', label:'主动向老师问好',   pts:1  },
+      { cat:'文明礼仪', label:'帮助同学',         pts:2  },
+      { cat:'文明礼仪', label:'公益活动参与',     pts:3  },
+    ],
+    subtract: [
+      { cat:'出勤',     label:'上课迟到',       pts:-1 },
+      { cat:'出勤',     label:'旷课',          pts:-5 },
+      { cat:'学习',     label:'作业未按时交',   pts:-2 },
+      { cat:'学习',     label:'作业未完成',     pts:-3 },
+      { cat:'学习',     label:'考试作弊',       pts:-10},
+      { cat:'卫生',     label:'值日不认真',     pts:-2 },
+      { cat:'卫生',     label:'乱扔垃圾',       pts:-1 },
+      { cat:'纪律',     label:'课堂违反纪律',   pts:-3 },
+      { cat:'纪律',     label:'打架斗殴',       pts:-10},
+      { cat:'文明礼仪', label:'说脏话',       pts:-2 },
+      { cat:'文明礼仪', label:'顶撞老师',     pts:-5 },
+    ]
+  },
+  prizes: [
+    { name:'免作业券一次',     price:30 },
+    { name:'座位优先选择权',   price:50 },
+    { name:'与老师共进午餐',   price:80 },
+  ],
+  logs: [],
+  awards: [],
+  settings: { teacherPwd:'teacher123', monitorPwd:'monitor123', pwdEnabled: false }
+};
+
+/* --- Load state from localStorage (merge, never wipe existing students) --- */
+function loadState() {
+  try {
+    const raw = localStorage.getItem('711-points-data');
+    if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    const saved = JSON.parse(raw);
+    const merged = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    // deep-merge: only fill missing keys, never delete existing arrays
+    for (const key in saved) {
+      if (key === 'students') {
+        // merge students by id: keep saved ones, add default ones not present
+        const savedMap = new Map(saved.students.map(s => [s.id, s]));
+        merged.students = saved.students; // replace: browser localStorage IS the source of truth
+      } else if (key === 'groups') {
+        merged.groups = saved.groups || [];
+      } else if (key === 'pointRules') {
+        // Safely merge pointRules: keep default add/subtract arrays unless saved has them
+        merged.pointRules = {
+          add: (saved.pointRules && Array.isArray(saved.pointRules.add)) ? saved.pointRules.add : DEFAULT_STATE.pointRules.add,
+          subtract: (saved.pointRules && Array.isArray(saved.pointRules.subtract)) ? saved.pointRules.subtract : DEFAULT_STATE.pointRules.subtract,
+        };
+      } else if (key === 'prizes') {
+        merged.prizes = saved.prizes || DEFAULT_STATE.prizes;
+      } else if (key === 'logs') {
+        merged.logs = saved.logs || [];
+      } else if (key === 'awards') {
+        merged.awards = saved.awards || [];
+      } else if (key === 'settings') {
+        merged.settings = { ...DEFAULT_STATE.settings, ...(saved.settings || {}) };
+      } else {
+        merged[key] = saved[key];
+      }
+    }
+    return merged;
+  } catch(e) {
+    console.warn('Load state failed, using default', e);
+    return JSON.parse(JSON.stringify(DEFAULT_STATE));
+  }
+}
+
+/* Validate and fix appState after load */
+function validateState(st) {
+  if (!st || !st.pointRules || !Array.isArray(st.pointRules.add) || !Array.isArray(st.pointRules.subtract)) {
+    st.pointRules = { add: JSON.parse(JSON.stringify(DEFAULT_STATE.pointRules.add)), subtract: JSON.parse(JSON.stringify(DEFAULT_STATE.pointRules.subtract)) };
+  } else {
+    // Also check: each rule must have a 'cat' field
+    const addOk = st.pointRules.add.length === 0 || st.pointRules.add.every(r => r && typeof r.cat === 'string');
+    const subOk = st.pointRules.subtract.length === 0 || st.pointRules.subtract.every(r => r && typeof r.cat === 'string');
+    if (!addOk || !subOk) {
+      st.pointRules = { add: JSON.parse(JSON.stringify(DEFAULT_STATE.pointRules.add)), subtract: JSON.parse(JSON.stringify(DEFAULT_STATE.pointRules.subtract)) };
+    }
+  }
+  if (!st.students || !Array.isArray(st.students)) st.students = JSON.parse(JSON.stringify(DEFAULT_STATE.students));
+  if (!st.groups || !Array.isArray(st.groups)) st.groups = [];
+  if (!st.logs || !Array.isArray(st.logs)) st.logs = [];
+  if (!st.awards || !Array.isArray(st.awards)) st.awards = [];
+  if (!st.prizes || !Array.isArray(st.prizes)) st.prizes = JSON.parse(JSON.stringify(DEFAULT_STATE.prizes));
+}
+let appState = loadState();
+validateState(appState);
+
+/* --- Pre-fill class roster if no students exist --- */
+(function prefillRoster() {
+  if (appState.students.length > 0) return; // already has data, skip
+  const roster = [
+    '曾俊洋','陈思举','陈以勋','邓策文','樊正昊','冯启睿','江楚熙','焦铭宇',
+    '顾瀚文','李子','赖俊宇','廖凯祺','刘康杰','佘君豪','王炜轩','温子宸',
+    '吴睿祺','吴玮钦','邢家煜','杨傲霆','杨麦','杨喆','余泽杲','张彦熙',
+    '周梓轩','朱逸赫','陈美霖','陈则西','邓雨非','樊蕊','黄偲晴','黄欣睿',
+    '黄语希','黄玉婷','黄子瑶','江晓桐','赖彦琳','李诗韵','刘梓晴','罗熙晴',
+    '马思妍','吴昀熹','许奕可','闫隽曦','张珂萁','朱艾维','张诗曼','朱言依',
+    '宋琪澳','吴悦彤','郑梓萱','张宇涵','杨雨菲'
+  ];
+  roster.forEach((name, i) => {
+    appState.students.push({ id: i + 1, name, points: 0 });
+  });
+  saveState();
+})();
+
+/* --- Save state --- */
+function saveState() {
+  localStorage.setItem('711-points-data', JSON.stringify(appState));
+  updateStatusBar();
+  // mark dirty
+  const dot = document.getElementById('status-dot');
+  if (dot) { dot.classList.remove('dirty'); setTimeout(() => { if(dot) dot.classList.add('dirty'); }, 80); }
+}
+
+function updateStatusBar() {
+  const el1 = document.getElementById('status-students');
+  const el2 = document.getElementById('status-total');
+  const el3 = document.getElementById('header-meta');
+  const total = appState.students.reduce((s, x) => s + (x.points || 0), 0);
+  const txt = appState.students.length + '位同学 · ' + total + '总积分';
+  if (el1) el1.textContent = '👥 ' + appState.students.length + '位同学';
+  if (el2) el2.textContent = '⭐ ' + total + '总积分';
+  if (el3) el3.textContent = txt;
+}
+
+/* ================================================================
+   UTILS
+   ================================================================ */
+function escHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function showToast(msg, dur) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { if(t) t.classList.remove('show'); }, dur || 2100);
+}
+
+/** Custom confirm modal — returns Promise<boolean> */
+function confirmModal(msg, okText, cancelText, okClass) {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('modal-overlay');
+    document.getElementById('modal-msg').textContent = msg;
+    document.getElementById('modal-ok').textContent = okText || '确定';
+    document.getElementById('modal-cancel').textContent = cancelText || '取消';
+    document.getElementById('modal-ok').className = 'modal-ok ' + (okClass || 'ok');
+    overlay.classList.add('active');
+    function clean() {
+      overlay.classList.remove('active');
+      document.getElementById('modal-ok').onclick = null;
+      document.getElementById('modal-cancel').onclick = null;
+    }
+    document.getElementById('modal-ok').onclick = () => { clean(); resolve(true); };
+    document.getElementById('modal-cancel').onclick = () => { clean(); resolve(false); };
+  });
+}
+
+/** Password prompt modal — returns Promise<string|null> */
+function promptPassword(msg) {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('pwd-prompt-overlay');
+    document.getElementById('pwd-prompt-msg').textContent = msg || '请输入密码以继续';
+    const input = document.getElementById('pwd-prompt-input');
+    input.value = '';
+    overlay.classList.add('active');
+    setTimeout(() => input.focus(), 100);
+    window._pwdResolve = resolve;
+    window._pwdCleanup = () => {
+      overlay.classList.remove('active');
+      window._pwdResolve = null;
+      window._pwdCleanup = null;
+    };
+  });
+}
+function pwdPromptSubmit() {
+  const input = document.getElementById('pwd-prompt-input');
+  const val = input.value.trim();
+  if (window._pwdResolve) { window._pwdResolve(val); }
+  if (window._pwdCleanup) { window._pwdCleanup(); }
+}
+function pwdPromptCancel() {
+  if (window._pwdResolve) { window._pwdResolve(null); }
+  if (window._pwdCleanup) { window._pwdCleanup(); }
+}
+
+/* ================================================================
+   NAVIGATION
+   ================================================================ */
+let currentPanel = null;
+const panelStack = [];  // stack for back button
+
+async function openPanel(name) {
+  // Password check for points panel
+  if (name === 'points' && appState.settings.pwdEnabled) {
+    const pwd = await promptPassword('🔐 进入加减分需要验证密码');
+    if (!pwd) return; // cancelled
+    const valid = pwd === appState.settings.teacherPwd || pwd === appState.settings.monitorPwd;
+    if (!valid) { showToast('❌ 密码错误'); return; }
+  }
+  // close any open panel
+  document.querySelectorAll('.panel-overlay').forEach(o => o.classList.remove('active'));
+  const overlay = document.getElementById(name + '-overlay');
+  if (overlay) overlay.classList.add('active');
+  currentPanel = name;
+  panelStack.push(name);
+  document.getElementById('back-btn').classList.add('show');
+  renderPanel(name);
+}
+
+function closePanel(name) {
+  const overlay = document.getElementById(name + '-overlay');
+  if (overlay) overlay.classList.remove('active');
+  panelStack.pop();
+  currentPanel = panelStack.length ? panelStack[panelStack.length - 1] : null;
+  if (!currentPanel) {
+    document.getElementById('back-btn').classList.remove('show');
+  }
+}
+
+function goBack() {
+  if (!currentPanel) return;
+  const overlay = document.getElementById(currentPanel + '-overlay');
+  if (overlay) overlay.classList.remove('active');
+  panelStack.pop();
+  currentPanel = panelStack.length ? panelStack[panelStack.length - 1] : null;
+  if (currentPanel) {
+    const ov = document.getElementById(currentPanel + '-overlay');
+    if (ov) ov.classList.add('active');
+    renderPanel(currentPanel);
+  } else {
+    document.getElementById('back-btn').classList.remove('show');
+  }
+}
+
+function renderPanel(name) {
+  if (name === 'points')   renderPoints();
+  if (name === 'auction')  renderAuction();
+  if (name === 'election') renderElection();
+  if (name === 'settings') renderSettings();
+}
+
+/* ================================================================
+   SPLASH
+   ================================================================ */
+function startApp() {
+  document.getElementById('splash').classList.add('hidden');
+  document.getElementById('app').classList.add('visible');
+  updateStatusBar();
+}
+
+/* ================================================================
+   POINTS PANEL
+   分类即为选项：5个分类按钮，默认+1/-1分，可手动改分值
+   ================================================================ */
+let ptTab    = 'add';   // 'add' | 'sub'
+let ptSelStu = null;    // selected student id
+let ptSelCat = null;    // selected category string e.g. '出勤'
+let ptCustom = 0;       // custom points value (overrides category default)
+
+/* 每个分类的默认分值 */
+const CAT_DEFAULT_PTS = { add: 1, sub: -1 };
+
+function renderPoints() {
+  const body = document.getElementById('points-body');
+  let html = '';
+
+  // Tab: add / sub
+  html += `<div class="tabs">
+    <button class="tab-btn${ptTab==='add'?' active':''}" onclick="ptTab='add';ptSelCat=null;ptCustom=0;renderPoints()">➕ 加分</button>
+    <button class="tab-btn${ptTab==='sub'?' active':''}" onclick="ptTab='sub';ptSelCat=null;ptCustom=0;renderPoints()">➖ 减分</button>
+  </div>`;
+
+  // Student search + grid
+  html += `<input class="student-search" placeholder="🔍 搜索同学姓名..." oninput="renderPointsStudents(this.value)">`;
+  html += `<div class="student-grid" id="pt-stu-grid"></div>`;
+
+  // Section label
+  html += `<div style="font-size:0.8rem;color:var(--text-dim);margin:0.6rem 0 0.3rem;font-weight:500;">选择${ptTab==='add'?'加分':'减分'}方面：</div>`;
+
+  // Category buttons — each IS the option, default ±1分
+  html += `<div class="cat-option-grid" id="pt-cat-grid">`;
+  CATEGORIES.forEach(cat => {
+    const isSelected = ptSelCat === cat;
+    html += `<button class="cat-option-btn${isSelected?' selected':''}" data-cat="${escHtml(cat)}" onclick="ptSelectCat('${escHtml(cat)}')">${escHtml(cat)}</button>`;
+  });
+  html += `</div>`;
+
+  // Points value row: shown when a category is selected
+  const showPtsRow = ptSelCat !== null;
+  const defaultPts = ptTab === 'add' ? 1 : 1; // always 1, sign applied on confirm
+  html += `<div class="pts-value-row" id="pt-pts-row" style="${showPtsRow?'':'display:none'}">
+    <label>${ptTab==='add'?'加':'减'}分值：</label>
+    <div class="pts-stepper">
+      <button class="stepper-btn" onclick="ptStepPts(-1)">－</button>
+      <input type="number" id="pt-pts-input" min="1" max="99" value="${ptCustom||1}" oninput="ptPtsInput(this)">
+      <button class="stepper-btn" onclick="ptStepPts(1)">＋</button>
+    </div>
+    <span style="font-size:0.8rem;color:var(--text-dim);margin-left:0.3rem;">分</span>
+  </div>`;
+
+  // Confirm button
+  const btnLabel = getPtBtnLabel();
+  const btnClass = ptTab === 'add' ? 'btn-full btn-add' : 'btn-full btn-sub';
+  const canConfirm = ptSelStu && ptSelCat;
+  html += `<button class="${btnClass}" id="pt-confirm-btn"${canConfirm?'':' disabled'} onclick="confirmPoints()">${escHtml(btnLabel)}</button>`;
+
+  body.innerHTML = html;
+  renderPointsStudents();
+  // restore pts input value
+  const inp = document.getElementById('pt-pts-input');
+  if (inp) inp.value = ptCustom || 1;
+}
+
+/* Lightweight: select/deselect a student chip */
+function ptSelectStudent(id) {
+  ptSelStu = (ptSelStu === id) ? null : id;
+  document.querySelectorAll('#pt-stu-grid .student-chip').forEach(c => {
+    c.classList.toggle('selected', parseInt(c.getAttribute('data-sid')) === ptSelStu);
+  });
+  updatePtConfirmBtn();
+}
+
+/* Lightweight: select a category */
+function ptSelectCat(cat) {
+  ptSelCat = (ptSelCat === cat) ? null : cat;
+  if (!ptCustom) ptCustom = 1; // default 1 point
+  document.querySelectorAll('#pt-cat-grid .cat-option-btn').forEach(b => {
+    b.classList.toggle('selected', b.getAttribute('data-cat') === ptSelCat);
+  });
+  // show/hide pts row
+  const row = document.getElementById('pt-pts-row');
+  if (row) row.style.display = ptSelCat ? '' : 'none';
+  updatePtConfirmBtn();
+}
+
+/* Stepper buttons */
+function ptStepPts(delta) {
+  const inp = document.getElementById('pt-pts-input');
+  if (!inp) return;
+  let v = (parseInt(inp.value) || 1) + delta;
+  if (v < 1) v = 1; if (v > 99) v = 99;
+  inp.value = v;
+  ptCustom = v;
+  updatePtConfirmBtn();
+}
+
+/* Direct input */
+function ptPtsInput(input) {
+  let v = parseInt(input.value) || 1;
+  if (v < 1) v = 1; if (v > 99) v = 99;
+  ptCustom = v;
+  updatePtConfirmBtn();
+}
+
+function updatePtConfirmBtn() {
+  const btn = document.getElementById('pt-confirm-btn');
+  if (!btn) return;
+  btn.textContent = getPtBtnLabel();
+  if (ptSelStu && ptSelCat) {
+    btn.removeAttribute('disabled');
+  } else {
+    btn.setAttribute('disabled', '');
+  }
+}
+
+function renderPointsStudents(query) {
+  const el = document.getElementById('pt-stu-grid');
+  if (!el) return;
+  query = (query || '').toString().toLowerCase();
+  const list = query ? appState.students.filter(s => s.name.toLowerCase().includes(query)) : appState.students;
+  if (!list.length) {
+    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:1rem;color:var(--text-dim);font-size:0.82rem;">暂无同学，去「设置」添加</div>';
+    return;
+  }
+  el.innerHTML = list.map(s =>
+    `<div class="student-chip${ptSelStu===s.id?' selected':''}" data-sid="${s.id}" onclick="ptSelectStudent(${s.id})">${escHtml(s.name)}<span style="font-size:0.7rem;display:block;color:var(--text-dim)">${s.points}分</span></div>`
+  ).join('');
+}
+
+function getPtBtnLabel() {
+  if (!ptSelStu) return '请先选择同学';
+  if (!ptSelCat) return '请选择方面';
+  const v = ptCustom || 1;
+  const sign = ptTab === 'add' ? '+' : '-';
+  return `确认 ${sign}${v} 分（${ptSelCat}）`;
+}
+
+function confirmPoints() {
+  const stu = appState.students.find(s => s.id === ptSelStu);
+  if (!stu || !ptSelCat) return;
+  const v = ptCustom || 1;
+  const pts = ptTab === 'add' ? v : -v;
+  stu.points = (stu.points || 0) + pts;
+  appState.logs.push({
+    time: new Date().toISOString(),
+    studentId: stu.id, studentName: stu.name,
+    points: pts, reason: ptSelCat, category: ptSelCat
+  });
+  saveState();
+  showToast(`${stu.name} ${pts>0?'+':''}${pts}分（${ptSelCat}）`);
+  ptSelStu = null; ptSelCat = null; ptCustom = 0;
+  renderPoints();
+}
+
+/* ================================================================
+   AUCTION PANEL  (Phase 2 — simplified for now)
+   ================================================================ */
+let auctionView = 'rank'; // 'rank' | 'prizes' | 'avg'
+let auctionSort = 'desc';
+
+function renderAuction() {
+  const body = document.getElementById('auction-body');
+  let html = '';
+
+  // Sub-tabs
+  html += `<div class="tabs">` +
+    `<button class="tab-btn${auctionView==='rank'?' info-active':''}" onclick="auctionView='rank';renderAuction()">📊 一键排名</button>` +
+    `<button class="tab-btn${auctionView==='avg'?' info-active':''}" onclick="auctionView='avg';renderAuction()">📈 班级平均分</button>` +
+    `<button class="tab-btn${auctionView==='prizes'?' info-active':''}" onclick="auctionView='prizes';renderAuction()">🎁 奖品设置</button>` +
+    `</div>`;
+
+  if (auctionView === 'rank') {
+    // Sort toggle
+    html += `<div class="btn-row">` +
+      `<button class="btn-outline${auctionSort==='desc'?' active':''}" onclick="auctionSort='desc';renderAuction()">↓ 降序</button>` +
+      `<button class="btn-outline${auctionSort==='asc'?' active':''}" onclick="auctionSort='asc';renderAuction()">↑ 升序</button>` +
+      `</div>`;
+    const sorted = [...appState.students].sort((a, b) => auctionSort === 'desc' ? (b.points||0)-(a.points||0) : (a.points||0)-(b.points||0));
+    html += `<table style="width:100%;border-collapse:collapse;font-size:0.84rem;">` +
+      `<thead><tr style="text-align:left;color:var(--text-dim);font-size:0.76rem;border-bottom:1px solid rgba(0,0,0,0.06);">` +
+      `<th style="padding:0.45rem 0.5rem;">排名</th><th style="padding:0.45rem 0.5rem;">姓名</th><th style="padding:0.45rem 0.5rem;">积分</th></tr></thead>` +
+      `<tbody>` +
+      sorted.map((s, i) => `<tr style="border-bottom:1px solid rgba(0,0,0,0.03);">` +
+        `<td style="padding:0.4rem 0.5rem;">${i < 3 ? ['🥇','🥈','🥉'][i] : (i+1)}</td>` +
+        `<td style="padding:0.4rem 0.5rem;">${escHtml(s.name)}</td>` +
+        `<td style="padding:0.4rem 0.5rem;">${s.points||0}</td></tr>`).join('') +
+      `</tbody></table>`;
+  }
+  else if (auctionView === 'avg') {
+    const total = appState.students.reduce((s, x) => s + (x.points||0), 0);
+    const avg = appState.students.length ? Math.round(total / appState.students.length * 10) / 10 : 0;
+    const above = appState.students.filter(s => (s.points||0) >= avg).length;
+    html += `<div style="padding:1.1rem;border-radius:16px;background:linear-gradient(135deg,var(--blue-bg),var(--blue));margin-bottom:1rem;text-align:center;">` +
+      `<div style="font-size:0.82rem;color:var(--text-dim);margin-bottom:0.3rem;">班级平均积分</div>` +
+      `<div style="font-family:'Fredoka',sans-serif;font-size:2rem;font-weight:700;color:var(--blue-deep);">${avg}</div>` +
+      `<div style="font-size:0.76rem;color:var(--text-dim);margin-top:0.3rem;">共${appState.students.length}人，${above}人高于平均分</div>` +
+      `</div>`;
+    // Histogram
+    const bins = [0,0,0,0,0];
+    appState.students.forEach(s => {
+      const p = s.points || 0;
+      if (p < 0) bins[0]++; else if (p < 10) bins[1]++; else if (p < 20) bins[2]++; else if (p < 30) bins[3]++; else bins[4]++;
+    });
+    const maxBin = Math.max(...bins, 1);
+    html += `<div style="font-size:0.8rem;color:var(--text-dim);margin-bottom:0.4rem;">积分分布</div>` +
+      `<div style="display:flex;align-items:flex-end;gap:0.35rem;height:70px;">`;
+    ['<0','0-9','10-19','20-29','30+'].forEach((l, i) => {
+      html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:0.15rem;">` +
+        `<div style="font-size:0.65rem;color:var(--text-dim);">${bins[i]}</div>` +
+        `<div style="width:100%;background:linear-gradient(0deg,var(--blue),var(--blue-deep));border-radius:5px 5px 0 0;height:${Math.max(3, bins[i]/maxBin*50)}px;transition:height 0.3s;"></div>` +
+        `<div style="font-size:0.6rem;color:var(--text-dim);">${l}</div></div>`;
+    });
+    html += `</div>`;
+  }
+  else if (auctionView === 'prizes') {
+    html += `<div class="btn-row"><button class="btn-outline" onclick="addPrize()">+ 添加奖品</button></div>`;
+    html += `<div id="prize-list">`;
+    appState.prizes.forEach((p, i) => {
+      html += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.55rem 0.7rem;border-radius:11px;background:var(--bg-warm);margin-bottom:0.4rem;">` +
+        `<input type="text" value="${escHtml(p.name)}" style="flex:1;padding:0.4rem 0.6rem;border:1.5px solid rgba(0,0,0,0.06);border-radius:8px;font-size:0.84rem;font-family:'Noto Sans SC',sans-serif;outline:none;background:#fff;" onchange="appState.prizes[${i}].name=this.value;saveState()">` +
+        `<span style="font-size:0.78rem;color:var(--text-dim);white-space:nowrap;">价格</span>` +
+        `<input type="number" value="${p.price}" min="1" style="width:65px;padding:0.4rem;border:1.5px solid rgba(0,0,0,0.06);border-radius:8px;font-size:0.84rem;text-align:center;font-family:'Fredoka',sans-serif;outline:none;background:#fff;" onchange="appState.prizes[${i}].price=parseInt(this.value)||1;saveState()">` +
+        `<button style="width:28px;height:28px;border-radius:7px;border:none;background:rgba(220,38,38,0.08);color:#dc2626;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onclick="removePrize(${i})">✕</button>` +
+        `</div>`;
+    });
+    html += `</div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function addPrize() {
+  appState.prizes.push({ name: '新奖品', price: 30 });
+  saveState();
+  renderAuction();
+}
+
+async function removePrize(i) {
+  const ok = await confirmModal(`确定删除奖品「${appState.prizes[i].name}」？`, '删除', '取消', 'ok');
+  if (ok) { appState.prizes.splice(i, 1); saveState(); renderAuction(); }
+}
+
+/* ================================================================
+   ELECTION PANEL
+   ================================================================ */
+let electionType = 'personal'; // 'personal' | 'group'
+let electionWFrom = '', electionWTo = '';
+let electionExpanded = {};    // {awardIdx: true}
+let electionSelected = {};    // {awardIdx: studentId or groupId}
+
+const AWARD_DEFS = {
+  personal: [
+    { name:'守时之星',   cat:'出勤',     icon:'⏰' },
+    { name:'学习之星',   cat:'学习',     icon:'📚' },
+    { name:'卫生之星',   cat:'卫生',     icon:'🧹' },
+    { name:'纪律之星',   cat:'纪律',     icon:'📏' },
+    { name:'文明礼仪之星', cat:'文明礼仪', icon:'🌸' },
+  ],
+  group: [
+    { name:'守时小组',   cat:'出勤',     icon:'⏰' },
+    { name:'学习小组',   cat:'学习',     icon:'📚' },
+    { name:'卫生小组',   cat:'卫生',     icon:'🧹' },
+    { name:'纪律小组',   cat:'纪律',     icon:'📏' },
+    { name:'文明小组',   cat:'文明礼仪', icon:'🌸' },
+  ]
+};
+
+function getStudentCategoryScore(studentId, category) {
+  return appState.logs
+    .filter(l => l.studentId === studentId && l.category === category)
+    .reduce((s, l) => s + (l.points || 0), 0);
+}
+
+function getGroupCategoryScore(groupId, category) {
+  const g = appState.groups.find(x => x.id === groupId);
+  if (!g) return 0;
+  return g.memberIds.reduce((sum, mid) => sum + getStudentCategoryScore(mid, category), 0);
+}
+
+function renderElection() {
+  const body = document.getElementById('election-body');
+  let html = '';
+
+  // Week range
+  html += `<div class="input-row" style="margin-bottom:1rem;">` +
+    `<label>📅 第</label><input type="number" id="el-wfrom" value="${electionWFrom}" placeholder="1" style="width:55px" oninput="electionWFrom=this.value;renderElection()">` +
+    `<label>周 至 第</label><input type="number" id="el-wto" value="${electionWTo}" placeholder="10" style="width:55px" oninput="electionWTo=this.value;renderElection()">` +
+    `<label>周 积分汇总</label>` +
+    `</div>`;
+
+  // Personal / Group toggle
+  html += `<div class="tabs">` +
+    `<button class="tab-btn${electionType==='personal'?' info-active':''}" onclick="electionType='personal';electionExpanded={};electionSelected={};renderElection()">👤 个人奖项</button>` +
+    `<button class="tab-btn${electionType==='group'?' info-active':''}" onclick="electionType='group';electionExpanded={};electionSelected={};renderElection()">👥 小组奖项</button>` +
+    `</div>`;
+
+  const defs = AWARD_DEFS[electionType];
+
+  defs.forEach((d, i) => {
+    const expanded = electionExpanded[i];
+    const selId = electionSelected[i];
+    let selName = '';
+    if (selId !== undefined) {
+      if (electionType === 'personal') {
+        const stu = appState.students.find(s => s.id === selId);
+        selName = stu ? stu.name : '';
+      } else {
+        const grp = appState.groups.find(g => g.id === selId);
+        selName = grp ? grp.name : '';
+      }
+    }
+
+    html += `<div style="padding:0;border-radius:14px;background:var(--bg-warm);margin-bottom:0.6rem;overflow:hidden;transition:all var(--t);${expanded?'box-shadow:var(--shadow-md);':''}">`;
+
+    // Header row
+    html += `<div style="display:flex;align-items:center;gap:0.7rem;padding:0.75rem 0.9rem;cursor:pointer;" onclick="electionExpanded[${i}]=!electionExpanded[${i}];renderElection()">` +
+      `<span style="font-size:1.3rem;">${d.icon}</span>` +
+      `<div style="flex:1;"><div style="font-family:'Fredoka','Noto Sans SC',sans-serif;font-size:0.92rem;font-weight:600;">${escHtml(d.name)}</div><div style="font-size:0.73rem;color:var(--text-dim);">参考${d.cat}积分</div></div>` +
+      `<span style="font-size:0.8rem;color:var(--text-dim);transition:transform 0.25s;display:inline-block;${expanded?'transform:rotate(180deg)':''}">▼</span>` +
+      `</div>`;
+
+    // Expanded detail
+    if (expanded) {
+      html += `<div style="padding:0 0.9rem 0.8rem;">`;
+
+      if (electionType === 'personal') {
+        // Personal ranking by category score
+        const ranked = appState.students
+          .map(s => ({ id:s.id, name:s.name, score:getStudentCategoryScore(s.id, d.cat) }))
+          .sort((a, b) => b.score - a.score);
+
+        html += `<div style="max-height:180px;overflow-y:auto;margin-bottom:0.5rem;">` +
+          `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;">` +
+          `<thead><tr style="color:var(--text-dim);font-size:0.72rem;border-bottom:1px solid rgba(0,0,0,0.06);"><th style="text-align:left;padding:0.35rem 0.4rem;">#</th><th style="text-align:left;padding:0.35rem 0.4rem;">姓名</th><th style="text-align:right;padding:0.35rem 0.4rem;">${d.cat}积分</th><th style="text-align:center;padding:0.35rem 0.4rem;">选中</th></tr></thead>` +
+          `<tbody>` +
+          ranked.map((r, ri) => `<tr style="border-bottom:1px solid rgba(0,0,0,0.03);${selId===r.id?'background:rgba(132,163,124,0.1);':''}">` +
+            `<td style="padding:0.3rem 0.4rem;">${ri<3?['🥇','🥈','🥉'][ri]:ri+1}</td>` +
+            `<td style="padding:0.3rem 0.4rem;">${escHtml(r.name)}</td>` +
+            `<td style="padding:0.3rem 0.4rem;text-align:right;font-family:'Fredoka',sans-serif;font-weight:600;color:${r.score>0?'var(--green-deep)':r.score<0?'var(--pink-deep)':'var(--text-dim)'};">${r.score}</td>` +
+            `<td style="padding:0.3rem 0.4rem;text-align:center;"><button style="width:44px;padding:0.2rem 0.4rem;border-radius:7px;border:2px solid ${selId===r.id?'var(--green-deep)':'rgba(0,0,0,0.08)'};background:${selId===r.id?'var(--green-bg)':'transparent'};color:${selId===r.id?'var(--green-deep)':'var(--text-dim)'};font-size:0.72rem;cursor:pointer;font-weight:500;transition:all var(--t);font-family:'Noto Sans SC',sans-serif;" onclick="event.stopPropagation();electionSelected[${i}]=${r.id};renderElection()">${selId===r.id?'✓':'选'}</button></td>` +
+            `</tr>`).join('') +
+          `</tbody></table></div>`;
+      } else {
+        // Group ranking
+        if (!appState.groups.length) {
+          html += `<div style="text-align:center;padding:1rem;color:var(--text-dim);font-size:0.82rem;">暂无分组，请先去「设置」创建</div>`;
+        } else {
+          const ranked = appState.groups
+            .map(g => ({ id:g.id, name:g.name, score:getGroupCategoryScore(g.id, d.cat) }))
+            .sort((a, b) => b.score - a.score);
+
+          html += `<div style="max-height:180px;overflow-y:auto;margin-bottom:0.5rem;">` +
+            `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;">` +
+            `<thead><tr style="color:var(--text-dim);font-size:0.72rem;border-bottom:1px solid rgba(0,0,0,0.06);"><th style="text-align:left;padding:0.35rem 0.4rem;">#</th><th style="text-align:left;padding:0.35rem 0.4rem;">小组</th><th style="text-align:right;padding:0.35rem 0.4rem;">${d.cat}总分</th><th style="text-align:center;padding:0.35rem 0.4rem;">选中</th></tr></thead>` +
+            `<tbody>` +
+            ranked.map((r, ri) => `<tr style="border-bottom:1px solid rgba(0,0,0,0.03);${selId===r.id?'background:rgba(132,163,124,0.1);':''}">` +
+              `<td style="padding:0.3rem 0.4rem;">${ri<3?['🥇','🥈','🥉'][ri]:ri+1}</td>` +
+              `<td style="padding:0.3rem 0.4rem;">${escHtml(r.name)}</td>` +
+              `<td style="padding:0.3rem 0.4rem;text-align:right;font-family:'Fredoka',sans-serif;font-weight:600;color:${r.score>0?'var(--green-deep)':r.score<0?'var(--pink-deep)':'var(--text-dim)'};">${r.score}</td>` +
+              `<td style="padding:0.3rem 0.4rem;text-align:center;"><button style="width:44px;padding:0.2rem 0.4rem;border-radius:7px;border:2px solid ${selId===r.id?'var(--green-deep)':'rgba(0,0,0,0.08)'};background:${selId===r.id?'var(--green-bg)':'transparent'};color:${selId===r.id?'var(--green-deep)':'var(--text-dim)'};font-size:0.72rem;cursor:pointer;font-weight:500;transition:all var(--t);font-family:'Noto Sans SC',sans-serif;" onclick="event.stopPropagation();electionSelected[${i}]=${r.id};renderElection()">${selId===r.id?'✓':'选'}</button></td>` +
+              `</tr>`).join('') +
+            `</tbody></table></div>`;
+        }
+      }
+
+      html += `</div>`; // end expanded
+    }
+
+    // Selected indicator
+    if (selName) {
+      html += `<div style="padding:0 0.9rem 0.6rem;font-size:0.78rem;color:var(--green-deep);">✅ 已选：${escHtml(selName)}</div>`;
+    }
+
+    html += `</div>`; // end card
+  });
+
+  // Submit button
+  const hasAllSelected = defs.every((d, i) => electionSelected[i] !== undefined);
+  html += `<button class="btn-full btn-add"${hasAllSelected?'':' disabled'} onclick="submitElection()">` +
+    `🏆 提交评选结果` +
+    (hasAllSelected ? '' : '（请为每个奖项选一位获奖者）') +
+    `</button>`;
+
+  // Show past awards if any
+  if (appState.awards && appState.awards.length) {
+    const recentAwards = appState.awards
+      .map((a, i) => ({ ...a, _origIdx: i }))
+      .reverse()
+      .slice(0, 5);
+    html += `<div style="margin-top:1.2rem;"><div class="section-title">📜 历史获奖记录</div>` +
+      recentAwards.map(a => `<div style="display:flex;align-items:center;gap:0.35rem;font-size:0.78rem;padding:0.4rem 0.6rem;background:var(--bg-warm);border-radius:8px;margin-bottom:0.3rem;color:var(--text-dim);"><span style="flex:1;min-width:0;">🏅 ${escHtml(a.awardName)} → <b style="color:var(--text);">${escHtml(a.winnerName)}</b> · 第${a.weekFrom}~${a.weekTo}周</span><button style="flex-shrink:0;width:22px;height:22px;border-radius:50%;border:1.5px solid #fca5a5;background:transparent;color:#dc2626;font-size:0.68rem;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;" onclick="event.stopPropagation();deleteAward(${a._origIdx})" title="删除此记录">✕</button></div>`).join('') +
+      `<button class="btn-sm-del" style="margin-top:0.3rem;font-size:0.72rem;" onclick="clearAllAwards()">🗑 清空全部记录</button>` +
+      `</div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+async function submitElection() {
+  const defs = AWARD_DEFS[electionType];
+  const typeLabel = electionType === 'personal' ? '个人' : '小组';
+  const weekRange = `第${electionWFrom||'?'}周~第${electionWTo||'?'}周`;
+
+  // Build award list text
+  let certHtml = `<div style="text-align:center;padding:0.5rem;">`;
+  certHtml += `<div style="font-size:1.1rem;font-weight:700;color:var(--green-deep);margin-bottom:0.6rem;">🎉 班级评选结果 · ${weekRange}</div>`;
+  certHtml += `<div style="margin-bottom:1rem;color:var(--text-dim);font-size:0.84rem;">${typeLabel}奖项</div>`;
+
+  defs.forEach((d, i) => {
+    const selId = electionSelected[i];
+    let winnerName = '';
+    if (electionType === 'personal') {
+      const stu = appState.students.find(s => s.id === selId);
+      winnerName = stu ? stu.name : '未知';
+    } else {
+      const grp = appState.groups.find(g => g.id === selId);
+      winnerName = grp ? grp.name : '未知';
+    }
+    certHtml += `<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.7rem;background:var(--bg-warm);border-radius:10px;margin-bottom:0.35rem;font-size:0.85rem;">` +
+      `<span>${d.icon}</span><span style="font-weight:600;">${escHtml(d.name)}</span><span style="margin-left:auto;color:var(--green-deep);">${escHtml(winnerName)}</span>` +
+      `</div>`;
+
+    // Save to awards
+    appState.awards.push({
+      type: electionType,
+      awardName: d.name,
+      category: d.cat,
+      winnerId: selId,
+      winnerName: winnerName,
+      weekFrom: electionWFrom,
+      weekTo: electionWTo,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  certHtml += `<div style="margin-top:0.8rem;font-size:0.76rem;color:var(--text-dim);">✅ 获奖信息已自动存入个人档案</div>`;
+  certHtml += `</div>`;
+
+  saveState();
+
+  // Show certificate modal
+  const overlay = document.getElementById('modal-overlay');
+  document.getElementById('modal-msg').innerHTML = certHtml;
+  document.getElementById('modal-ok').textContent = '确定';
+  document.getElementById('modal-cancel').textContent = '关闭';
+  document.getElementById('modal-ok').className = 'modal-ok ok-green';
+  overlay.classList.add('active');
+
+  return new Promise(resolve => {
+    function clean() {
+      overlay.classList.remove('active');
+      document.getElementById('modal-ok').onclick = null;
+      document.getElementById('modal-cancel').onclick = null;
+      resolve(true);
+    }
+    document.getElementById('modal-ok').onclick = clean;
+    document.getElementById('modal-cancel').onclick = clean;
+  }).then(() => {
+    // Reset selections and re-render
+    electionExpanded = {};
+    electionSelected = {};
+    renderElection();
+  });
+}
+
+/* --- Award history management --- */
+async function deleteAward(idx) {
+  const a = appState.awards[idx];
+  if (!a) return;
+  const ok = await confirmModal(`确定删除「${a.awardName}」→ ${a.winnerName} 的获奖记录？`, '删除', '取消', 'ok');
+  if (ok) { appState.awards.splice(idx, 1); saveState(); renderElection(); }
+}
+async function clearAllAwards() {
+  const ok = await confirmModal('确定清空全部历史获奖记录？此操作不可恢复。', '清空', '取消', 'ok');
+  if (ok) { appState.awards = []; saveState(); renderElection(); }
+}
+
+/* ================================================================
+   SETTINGS PANEL
+   ================================================================ */
+let settingsTab = 'students'; // 'students' | 'groups' | 'pwd' | 'data'
+
+function renderSettings() {
+  const body = document.getElementById('settings-body');
+  let html = '';
+
+  // Sub-tabs
+  html += `<div class="tabs">` +
+    `<button class="tab-btn${settingsTab==='students'?' primary-active':''}" onclick="settingsTab='students';renderSettings()">👥 学生</button>` +
+    `<button class="tab-btn${settingsTab==='groups'?' primary-active':''}" onclick="settingsTab='groups';renderSettings()">👥 分组</button>` +
+    `<button class="tab-btn${settingsTab==='pwd'?' danger-active':''}" onclick="settingsTab='pwd';renderSettings()">🔐 密码</button>` +
+    `<button class="tab-btn${settingsTab==='data'?' danger-active':''}" onclick="settingsTab='data';renderSettings()">📊 数据</button>` +
+    `</div>`;
+
+  if (settingsTab === 'students') {
+    html += `<div class="add-row"><input id="new-stu-input" placeholder="输入姓名…" onkeydown="if(event.key==='Enter')addStudent()">` +
+      `<button class="btn-outline" onclick="addStudent()">+ 添加</button></div>`;
+    html += `<div class="stu-manage-list" id="stu-manage-list"></div>`;
+    // will be filled by renderStuManage()
+  }
+  else if (settingsTab === 'groups') {
+    html += `<div class="add-row"><input id="new-group-input" placeholder="输入组名…" onkeydown="if(event.key==='Enter')addGroup()">` +
+      `<button class="btn-outline" onclick="addGroup()">+ 新建组</button></div>`;
+    html += `<div id="group-list"></div>`;
+  }
+  else if (settingsTab === 'pwd') {
+    html += `<div style="margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;padding:0.7rem 1rem;background:var(--bg-warm);border-radius:13px;">` +
+      `<div><div style="font-size:0.88rem;font-weight:600;">🔐 启用密码保护</div><div style="font-size:0.72rem;color:var(--text-dim);">开启后进入加分/减分需验证密码</div></div>` +
+      `<label class="toggle-switch" style="flex-shrink:0;">
+        <input type="checkbox" id="pwd-enabled-check" ${appState.settings.pwdEnabled?'checked':''} onchange="togglePwdEnabled(this.checked)">
+        <span class="toggle-slider"></span>
+      </label>` +
+      `</div>` +
+      `<div style="margin-bottom:1.2rem;">` +
+      `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid rgba(0,0,0,0.05);margin-bottom:0.5rem;">` +
+        `<label style="font-size:0.85rem;">老师密码</label>` +
+        `<input id="teacher-pwd-input" type="text" value="${escHtml(appState.settings.teacherPwd)}" style="width:140px;padding:0.45rem 0.7rem;border:1.5px solid rgba(0,0,0,0.06);border-radius:9px;font-size:0.85rem;text-align:right;font-family:'Noto Sans SC',sans-serif;outline:none;background:var(--bg-warm);">` +
+        `</div>` +
+      `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid rgba(0,0,0,0.05);">` +
+        `<label style="font-size:0.85rem;">学委密码</label>` +
+        `<input id="monitor-pwd-input" type="text" value="${escHtml(appState.settings.monitorPwd)}" style="width:140px;padding:0.45rem 0.7rem;border:1.5px solid rgba(0,0,0,0.06);border-radius:9px;font-size:0.85rem;text-align:right;font-family:'Noto Sans SC',sans-serif;outline:none;background:var(--bg-warm);">` +
+        `</div>` +
+      `</div>`;
+    html += `<button class="btn-outline" style="margin-top:0.3rem;" onclick="savePwds()">💾 保存密码</button>`;
+  }
+  else if (settingsTab === 'data') {
+    html += `<div style="margin-bottom:1.2rem;"><div style="font-size:0.88rem;font-weight:600;color:var(--text-dim);margin-bottom:0.6rem;">📥 导入 / 导出</div>` +
+      `<div class="btn-row">` +
+        `<button class="btn-outline" onclick="exportData()">📥 导出 JSON</button>` +
+        `<button class="btn-outline" onclick="document.getElementById('import-file-input').click()">📤 导入 JSON</button>` +
+        `<input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importData(event)">` +
+        `</div></div>`;
+    html += `<div><div style="font-size:0.88rem;font-weight:600;color:var(--text-dim);margin-bottom:0.6rem;">⚠️ 危险操作</div>` +
+      `<button class="btn-sm-del" onclick="resetAllPoints()">🔄 全班积分清零</button></div>`;
+  }
+
+  body.innerHTML = html;
+  // deferred render lists
+  if (settingsTab === 'students') setTimeout(renderStuManage, 0);
+  if (settingsTab === 'groups')   setTimeout(renderGroups, 0);
+}
+
+/* --- Students manage --- */
+function renderStuManage() {
+  const el = document.getElementById('stu-manage-list');
+  if (!el) return;
+  if (!appState.students.length) { el.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-dim);font-size:0.82rem;">暂无学生</div>'; return; }
+  el.innerHTML = appState.students.map(s =>
+    `<div class="stu-manage-item"><span class="stu-name">${escHtml(s.name)}</span><span class="stu-pts">${s.points||0}分</span>` +
+    `<button class="btn-sm-del" onclick="confirmRemoveStudent(${s.id})">删除</button></div>`
+  ).join('');
+}
+
+async function confirmRemoveStudent(id) {
+  const s = appState.students.find(x => x.id === id);
+  if (!s) return;
+  const ok = await confirmModal(`确定删除「${s.name}」？积分记录将被清除。`, '删除', '取消', 'ok');
+  if (ok) {
+    appState.students = appState.students.filter(x => x.id !== id);
+    // remove from groups
+    appState.groups.forEach(g => { g.memberIds = g.memberIds.filter(mid => mid !== id); });
+    saveState();
+    renderStuManage();
+    showToast(`已删除 ${s.name}`);
+  }
+}
+
+function addStudent() {
+  const inp = document.getElementById('new-stu-input');
+  if (!inp) return;
+  const name = inp.value.trim();
+  if (!name) return showToast('请输入姓名');
+  if (appState.students.find(s => s.name === name)) return showToast('该同学已存在');
+  const maxId = appState.students.reduce((m, s) => Math.max(m, s.id || 0), 0);
+  appState.students.push({ id: maxId + 1, name, points: 0 });
+  inp.value = '';
+  saveState();
+  renderStuManage();
+  showToast(`已添加 ${name}`);
+}
+
+/* --- Groups manage --- */
+function renderGroups() {
+  const el = document.getElementById('group-list');
+  if (!el) return;
+  if (!appState.groups.length) { el.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-dim);font-size:0.82rem;">暂无分组，请新建</div>'; return; }
+  el.innerHTML = appState.groups.map((g, gi) => {
+    const memberNames = g.memberIds.map(mid => {
+      const s = appState.students.find(st => st.id === mid);
+      return s ? `<span style="background:var(--green-bg);padding:0.12rem 0.45rem;border-radius:7px;font-size:0.72rem;margin:0.1rem;display:inline-block;">${escHtml(s.name)} <span style="color:var(--text-dim);cursor:pointer;" onclick="removeFromGroup(${g.id},${mid})">✕</span></span>` : '';
+    }).join('');
+    return `<div style="padding:0.7rem;border-radius:13px;background:var(--bg-warm);margin-bottom:0.5rem;">` +
+      `<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">` +
+        `<span style="font-weight:600;font-size:0.88rem;">📁 ${escHtml(g.name)}</span>` +
+        `<button style="margin-left:auto;padding:0.2rem 0.5rem;border:1.5px solid #fca5a5;border-radius:7px;background:transparent;color:#dc2626;font-size:0.72rem;cursor:pointer;" onclick="deleteGroup(${gi})">删除组</button>` +
+        `<button style="padding:0.2rem 0.5rem;border:1.5px dashed var(--text-light);border-radius:7px;background:transparent;font-size:0.72rem;color:var(--text-dim);cursor:pointer;" onclick="showAddToGroup(${g.id})">+ 加人</button>` +
+        `</div>` +
+      `<div>${memberNames||'<span style="font-size:0.78rem;color:var(--text-dim);">暂无成员</span>'}</div>` +
+      `</div>`;
+  }).join('');
+}
+
+function addGroup() {
+  const inp = document.getElementById('new-group-input');
+  if (!inp) return;
+  const name = inp.value.trim();
+  if (!name) return showToast('请输入组名');
+  const maxId = appState.groups.reduce((m, g) => Math.max(m, g.id || 0), 0);
+  appState.groups.push({ id: maxId + 1, name, memberIds: [] });
+  inp.value = '';
+  saveState();
+  renderGroups();
+  showToast(`已建组「${name}」`);
+}
+
+async function deleteGroup(gi) {
+  const ok = await confirmModal(`确定删除分组「${appState.groups[gi].name}」？`, '删除', '取消', 'ok');
+  if (ok) { appState.groups.splice(gi, 1); saveState(); renderGroups(); }
+}
+
+function removeFromGroup(gid, mid) {
+  const g = appState.groups.find(x => x.id === gid);
+  if (!g) return;
+  g.memberIds = g.memberIds.filter(x => x !== mid);
+  saveState();
+  renderGroups();
+}
+
+/* --- Group add members: multi-select modal --- */
+let _gaGroupId = null;
+let _gaChecked = {}; // { studentId: true/false }
+
+function showAddToGroup(gid) {
+  const g = appState.groups.find(x => x.id === gid);
+  if (!g) return;
+  _gaGroupId = gid;
+  _gaChecked = {};
+  // Pre-check existing members
+  g.memberIds.forEach(id => { _gaChecked[id] = true; });
+
+  document.getElementById('ga-title').textContent = '添加成员到「' + g.name + '」';
+  renderGroupAddStudents();
+  const overlay = document.getElementById('group-add-overlay');
+  overlay.classList.add('active');
+}
+
+function renderGroupAddStudents() {
+  const el = document.getElementById('ga-stu-grid');
+  const g = appState.groups.find(x => x.id === _gaGroupId);
+  el.innerHTML = appState.students.map(s => {
+    const isChecked = _gaChecked[s.id];
+    const alreadyIn = g && g.memberIds.includes(s.id);
+    const cls = alreadyIn ? 'in-group' : (isChecked ? 'checked' : '');
+    const label = alreadyIn ? s.name + ' ✓' : s.name;
+    const clickAttr = alreadyIn ? '' : `onclick="toggleGaStudent(${s.id})"`;
+    return `<div class="ga-stu-chip ${cls}" ${clickAttr}>${escHtml(label)}</div>`;
+  }).join('');
+}
+
+function toggleGaStudent(sid) {
+  const g = appState.groups.find(x => x.id === _gaGroupId);
+  if (g && g.memberIds.includes(sid)) return; // already in group, skip
+  _gaChecked[sid] = !_gaChecked[sid];
+  renderGroupAddStudents();
+}
+
+function confirmGroupAdd() {
+  const g = appState.groups.find(x => x.id === _gaGroupId);
+  if (!g) return;
+  const toAdd = Object.keys(_gaChecked).filter(id => _gaChecked[id] === true).map(Number);
+  if (!toAdd.length) showToast('未选择任何同学');
+  else {
+    toAdd.forEach(id => { if (!g.memberIds.includes(id)) g.memberIds.push(id); });
+    const names = toAdd.map(id => { const s = appState.students.find(x => x.id === id); return s ? s.name : ''; }).filter(Boolean);
+    saveState();
+    renderGroups();
+    renderSettings();
+    showToast(`已添加 ${names.length} 人到「${g.name}」`);
+  }
+  _gaGroupId = null;
+  _gaChecked = {};
+  document.getElementById('group-add-overlay').classList.remove('active');
+}
+
+function cancelGroupAdd() {
+  _gaGroupId = null;
+  _gaChecked = {};
+  document.getElementById('group-add-overlay').classList.remove('active');
+}
+
+/* --- Passwords --- */
+function savePwds() {
+  const t = document.getElementById('teacher-pwd-input');
+  const m = document.getElementById('monitor-pwd-input');
+  if (t) appState.settings.teacherPwd = t.value;
+  if (m) appState.settings.monitorPwd = m.value;
+  saveState();
+  showToast('密码已保存');
+}
+
+function togglePwdEnabled(val) {
+  appState.settings.pwdEnabled = val;
+  saveState();
+  showToast(val ? '🔐 密码保护已启用' : '🔓 密码保护已关闭');
+}
+
+/* --- Data import/export --- */
+function exportData() {
+  const blob = new Blob([JSON.stringify(appState, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = '711班级积分表-数据备份.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('数据已导出');
+}
+
+async function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.students || !Array.isArray(data.students)) throw new Error('bad format');
+      const ok = await confirmModal(`导入将覆盖当前数据（${data.students.length}人），确定？`, '覆盖导入', '取消', 'ok');
+      if (!ok) { event.target.value = ''; return; }
+      // merge: keep current logs, overwrite students/groups/prizes/settings
+      appState.students = data.students || appState.students;
+      appState.groups   = data.groups   || appState.groups;
+      appState.prizes   = data.prizes   || appState.prizes;
+      appState.logs      = data.logs      || appState.logs;
+      appState.awards    = data.awards    || appState.awards;
+      appState.pointRules = data.pointRules || appState.pointRules;
+      appState.settings   = { ...appState.settings, ...(data.settings || {}) };
+      saveState();
+      renderSettings();
+      showToast(`已导入 ${appState.students.length} 位同学`);
+    } catch(err) {
+      showToast('文件格式错误，请检查');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+async function resetAllPoints() {
+  const ok = await confirmModal('⚠️ 确定将全班积分归零？不可撤销！', '清零', '取消', 'ok');
+  if (!ok) return;
+  appState.students.forEach(s => { s.points = 0; });
+  appState.logs.push({ time: new Date().toISOString(), studentId: 0, studentName: '系统', points: 0, reason: '全班积分清零' });
+  saveState();
+  renderSettings();
+  showToast('全班积分已清零');
+}
+
+/* ================================================================
+   INIT
+   ================================================================ */
+updateStatusBar();
+</script>
+</body>
+</html>
