@@ -249,6 +249,32 @@ body {
 }
 .student-search:focus { border-color: var(--blue); }
 .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 0.4rem; max-height: 165px; overflow-y: auto; margin-bottom: 0.9rem; }
+/* ===== GROUP-TABBED STUDENT SELECTOR ===== */
+.pt-stu-wrap { margin-bottom: 0.9rem; }
+/* flat mode (no groups / searching) */
+.pt-stu-wrap.flat .student-grid { max-height: 165px; }
+/* grouped mode */
+.pt-stu-wrap.grouped { display: flex; gap: 0.55rem; overflow-x: auto; padding-bottom: 0.3rem; }
+.pt-stu-wrap.grouped::-webkit-scrollbar { height: 4px; }
+.pt-stu-wrap.grouped::-webkit-scrollbar-track { background: transparent; }
+.pt-stu-wrap.grouped::-webkit-scrollbar-thumb { background: rgba(74,68,88,0.15); border-radius: 99px; }
+.stu-group-col {
+  flex: 0 0 auto; min-width: 100px; max-width: 130px;
+  background: rgba(255,255,255,0.6); border-radius: 14px;
+  padding: 0.5rem 0.55rem 0.6rem;
+  box-shadow: 0 2px 8px rgba(74,68,88,0.06);
+}
+.stu-group-col-title {
+  font-size: 0.72rem; font-weight: 600; color: var(--text-dim);
+  text-align: center; margin-bottom: 0.4rem;
+  padding: 0.18rem 0.5rem; border-radius: 6px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.stu-group-col .student-chip {
+  width: 100%; display: block; margin-bottom: 0.3rem; font-size: 0.78rem;
+  padding: 0.35rem 0.45rem;
+}
+.stu-group-col .student-chip:last-child { margin-bottom: 0; }
 .student-chip {
   padding: 0.4rem 0.6rem; border-radius: 10px; border: 2px solid transparent; cursor: pointer;
   background: var(--bg-warm); font-size: 0.8rem; text-align: center; transition: all var(--t);
@@ -944,9 +970,9 @@ function renderPoints() {
     <button class="tab-btn${ptTab==='sub'?' active':''}" onclick="ptTab='sub';ptSelCat=null;ptCustom=0;renderPoints()">➖ 减分</button>
   </div>`;
 
-  // Student search + grid
-  html += `<input class="student-search" placeholder="🔍 搜索同学姓名..." oninput="renderPointsStudents(this.value)">`;
-  html += `<div class="student-grid" id="pt-stu-grid"></div>`;
+  // Student search + grid wrapper
+  html += `<input class="student-search" id="pt-stu-search" placeholder="🔍 搜索同学姓名..." oninput="renderPointsStudents(this.value)">`;
+  html += `<div class="pt-stu-wrap" id="pt-stu-wrap"></div>`;
 
   // Section label
   html += `<div style="font-size:0.8rem;color:var(--text-dim);margin:0.6rem 0 0.3rem;font-weight:500;">选择${ptTab==='add'?'加分':'减分'}方面：</div>`;
@@ -988,7 +1014,8 @@ function renderPoints() {
 /* Lightweight: select/deselect a student chip */
 function ptSelectStudent(id) {
   ptSelStu = (ptSelStu === id) ? null : id;
-  document.querySelectorAll('#pt-stu-grid .student-chip').forEach(c => {
+  // Works across both flat grid and grouped columns
+  document.querySelectorAll('#pt-stu-wrap .student-chip').forEach(c => {
     c.classList.toggle('selected', parseInt(c.getAttribute('data-sid')) === ptSelStu);
   });
   updatePtConfirmBtn();
@@ -1038,17 +1065,83 @@ function updatePtConfirmBtn() {
 }
 
 function renderPointsStudents(query) {
-  const el = document.getElementById('pt-stu-grid');
-  if (!el) return;
+  const wrap = document.getElementById('pt-stu-wrap');
+  if (!wrap) return;
   query = (query || '').toString().toLowerCase();
-  const list = query ? appState.students.filter(s => s.name.toLowerCase().includes(query)) : appState.students;
-  if (!list.length) {
-    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:1rem;color:var(--text-dim);font-size:0.82rem;">暂无同学，去「设置」添加</div>';
+
+  const hasGroups = appState.groups && appState.groups.length > 0;
+
+  /* ── FLAT MODE: no groups, or user is searching ── */
+  if (!hasGroups || query) {
+    wrap.className = 'pt-stu-wrap flat';
+    const list = query
+      ? appState.students.filter(s => s.name.toLowerCase().includes(query))
+      : appState.students;
+    if (!list.length) {
+      wrap.innerHTML = '<div class="student-grid"><div style="grid-column:1/-1;text-align:center;padding:1rem;color:var(--text-dim);font-size:0.82rem;">暂无同学，去「设置」添加</div></div>';
+      return;
+    }
+    wrap.innerHTML = '<div class="student-grid" id="pt-stu-grid">' +
+      list.map(s =>
+        `<div class="student-chip${ptSelStu===s.id?' selected':''}" data-sid="${s.id}" onclick="ptSelectStudent(${s.id})">${escHtml(s.name)}<span style="font-size:0.7rem;display:block;color:var(--text-dim)">${s.points}分</span></div>`
+      ).join('') +
+      '</div>';
     return;
   }
-  el.innerHTML = list.map(s =>
-    `<div class="student-chip${ptSelStu===s.id?' selected':''}" data-sid="${s.id}" onclick="ptSelectStudent(${s.id})">${escHtml(s.name)}<span style="font-size:0.7rem;display:block;color:var(--text-dim)">${s.points}分</span></div>`
-  ).join('');
+
+  /* ── GROUPED MODE ── */
+  wrap.className = 'pt-stu-wrap grouped';
+
+  // Build a map: studentId → groupName (first group wins)
+  const stuGroupMap = {};
+  appState.groups.forEach(g => {
+    (g.memberIds || []).forEach(mid => {
+      if (!stuGroupMap[mid]) stuGroupMap[mid] = g;
+    });
+  });
+
+  // Group columns: one per group + one "未分组"
+  const groupedCols = appState.groups.map(g => ({
+    group: g,
+    students: (g.memberIds || [])
+      .map(mid => appState.students.find(s => s.id === mid))
+      .filter(Boolean)
+  }));
+
+  const ungroupedStudents = appState.students.filter(s => !stuGroupMap[s.id]);
+
+  // Color cycling for group headers (Morandi palette)
+  const groupColors = [
+    { bg: 'var(--yellow-bg)', color: 'var(--yellow-deep)' },
+    { bg: 'var(--green-bg)',  color: 'var(--green-deep)' },
+    { bg: 'var(--blue-bg)',   color: 'var(--blue-deep)' },
+    { bg: 'var(--pink-bg)',   color: 'var(--pink-deep)' },
+    { bg: 'var(--purple-bg)', color: 'var(--purple-deep)' },
+  ];
+
+  let html = '';
+  groupedCols.forEach(({ group, students }, idx) => {
+    if (!students.length) return;
+    const c = groupColors[idx % groupColors.length];
+    html += `<div class="stu-group-col">`;
+    html += `<div class="stu-group-col-title" style="background:${c.bg};color:${c.color};">${escHtml(group.name)}</div>`;
+    students.forEach(s => {
+      html += `<div class="student-chip${ptSelStu===s.id?' selected':''}" data-sid="${s.id}" onclick="ptSelectStudent(${s.id})">${escHtml(s.name)}<span style="font-size:0.68rem;display:block;color:var(--text-dim)">${s.points}分</span></div>`;
+    });
+    html += `</div>`;
+  });
+
+  // Ungrouped column (only if there are ungrouped students)
+  if (ungroupedStudents.length) {
+    html += `<div class="stu-group-col">`;
+    html += `<div class="stu-group-col-title" style="background:#f0ece6;color:var(--text-dim);">未分组</div>`;
+    ungroupedStudents.forEach(s => {
+      html += `<div class="student-chip${ptSelStu===s.id?' selected':''}" data-sid="${s.id}" onclick="ptSelectStudent(${s.id})">${escHtml(s.name)}<span style="font-size:0.68rem;display:block;color:var(--text-dim)">${s.points}分</span></div>`;
+    });
+    html += `</div>`;
+  }
+
+  wrap.innerHTML = html;
 }
 
 function getPtBtnLabel() {
