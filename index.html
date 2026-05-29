@@ -138,6 +138,12 @@ body {
 }
 .header-title { font-family: 'Fredoka', 'Noto Sans SC', sans-serif; font-size: 1.15rem; font-weight: 600; }
 .header-meta { font-size: 0.73rem; color: var(--text-dim); }
+.header-right { display: flex; align-items: center; }
+.app-version {
+  font-size: 0.65rem; color: var(--text-light);
+  background: var(--bg-warm); padding: 0.2rem 0.55rem;
+  border-radius: 20px; font-family: 'Fredoka', sans-serif; letter-spacing: 0.03em;
+}
 
 .app-main { flex: 1; overflow-y: auto; padding: 2rem 1.5rem; display: flex; align-items: flex-start; justify-content: center; }
 .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; max-width: 520px; width: 100%; }
@@ -176,8 +182,8 @@ body {
 
 /* ===== WATERMARK ===== */
 .watermark {
-  position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
-  z-index: 8000; font-size: 0.9rem; color: #4a3f2f; opacity: 0.72;
+  position: fixed; bottom: 2.8rem; left: 50%; transform: translateX(-50%);
+  z-index: 200; font-size: 0.9rem; color: #4a3f2f; opacity: 0.72;
   font-family: 'Caveat', cursive; font-style: italic; font-weight: 700;
   letter-spacing: 0.04em;
   pointer-events: none; user-select: none;
@@ -498,6 +504,42 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 4px; }
 
+/* ===== DESKTOP RESPONSIVE ===== */
+@media (min-width: 768px) {
+  html { font-size: 17px; }
+  .app-main { padding: 2.5rem 2rem; }
+  .dashboard {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 960px; gap: 1.4rem;
+  }
+  .dash-card { padding: 2.2rem 1.4rem; }
+  .card-icon { width: 60px; height: 60px; font-size: 1.7rem; }
+  .card-label { font-size: 1.15rem; }
+  /* Panels become centered modal, not bottom-sheet */
+  .panel-overlay { align-items: center; }
+  .panel {
+    border-radius: 22px; max-width: 680px;
+    max-height: 82vh; transform: translateY(20px) scale(0.96);
+  }
+  .panel-overlay.active .panel { transform: translateY(0) scale(1); }
+  .panel-body { padding: 1.2rem 1.6rem 2rem; }
+  /* Grouped student layout gets more room */
+  .stu-group-col { min-width: 120px; max-width: 160px; }
+  /* Reason list taller */
+  .reason-list { max-height: 260px; }
+  /* Student grid taller */
+  .student-grid { max-height: 220px; }
+  .pt-stu-wrap.flat .student-grid { max-height: 220px; }
+  .stu-manage-list { max-height: 320px; }
+  /* Watermark higher offset on desktop */
+  .watermark { bottom: 3rem; }
+}
+@media (min-width: 1200px) {
+  html { font-size: 18px; }
+  .dashboard { max-width: 1100px; gap: 1.6rem; }
+  .panel { max-width: 760px; }
+}
+
 /* ===== MOBILE ===== */
 @media (max-width: 480px) {
   .dashboard { gap: 0.7rem; }
@@ -545,6 +587,9 @@ body {
         <div class="header-title">711班级积分表</div>
         <div class="header-meta" id="header-meta">暂无数据</div>
       </div>
+    </div>
+    <div class="header-right">
+      <span class="app-version">v1.1.0</span>
     </div>
   </header>
   <main class="app-main">
@@ -1543,9 +1588,10 @@ function renderSettings() {
   else if (settingsTab === 'data') {
     html += `<div style="margin-bottom:1.2rem;"><div style="font-size:0.88rem;font-weight:600;color:var(--text-dim);margin-bottom:0.6rem;">📥 导入 / 导出</div>` +
       `<div class="btn-row">` +
-        `<button class="btn-outline" onclick="exportData()">📥 导出 JSON</button>` +
-        `<button class="btn-outline" onclick="document.getElementById('import-file-input').click()">📤 导入 JSON</button>` +
-        `<input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importData(event)">` +
+        `<button class="btn-outline" onclick="exportData()">📊 导出积分表 CSV</button>` +
+        `<button class="btn-outline" onclick="exportJSON()">💾 导出完整备份 JSON</button>` +
+        `<button class="btn-outline" onclick="document.getElementById('import-file-input').click()">📤 导入 CSV / JSON</button>` +
+        `<input type="file" id="import-file-input" accept=".csv,.json" style="display:none" onchange="importData(event)">` +
         `</div></div>`;
     html += `<div><div style="font-size:0.88rem;font-weight:600;color:var(--text-dim);margin-bottom:0.6rem;">⚠️ 危险操作</div>` +
       `<button class="btn-sm-del" onclick="resetAllPoints()">🔄 全班积分清零</button></div>`;
@@ -1721,43 +1767,118 @@ function togglePwdEnabled(val) {
   showToast(val ? '🔐 密码保护已启用' : '🔓 密码保护已关闭');
 }
 
-/* --- Data import/export --- */
+/* --- Data import/export (CSV) --- */
+
+/* 生成带时间戳的文件名，格式：711班级积分表_202605271830.csv */
+function _tsFileName(prefix, ext) {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const ts = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}`;
+  return `${prefix}_${ts}.${ext}`;
+}
+
+/* CSV cell escape */
+function _csvCell(v) {
+  const s = String(v == null ? '' : v);
+  return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g,'""')}"` : s;
+}
+
+/* 导出积分总表 CSV (每位同学一行：姓名, 积分, 分组) */
 function exportData() {
+  const BOM = '\uFEFF'; // UTF-8 BOM，Excel 直接可识别中文
+  const rows = [['姓名', '积分', '分组']];
+  // Build group membership map
+  const grpMap = {};
+  (appState.groups || []).forEach(g => {
+    (g.memberIds || []).forEach(mid => { grpMap[mid] = g.name; });
+  });
+  appState.students.forEach(s => {
+    rows.push([s.name, s.points, grpMap[s.id] || '']);
+  });
+  const csv = BOM + rows.map(r => r.map(_csvCell).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = _tsFileName('711班级积分表', 'csv');
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ 积分表已导出为 CSV（可用 Excel 打开）');
+}
+
+/* 同时支持导出完整 JSON 备份（保留原有格式，文件名加时间戳） */
+function exportJSON() {
   const blob = new Blob([JSON.stringify(appState, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = '711班级积分表-数据备份.json'; a.click();
+  a.href = url;
+  a.download = _tsFileName('711班级积分表-完整备份', 'json');
+  a.click();
   URL.revokeObjectURL(url);
-  showToast('数据已导出');
+  showToast('✅ 完整数据已导出为 JSON');
 }
 
+/* 导入：支持 CSV（仅更新积分）和 JSON（完整恢复） */
 async function importData(event) {
   const file = event.target.files[0];
   if (!file) return;
+  const isCsv = file.name.toLowerCase().endsWith('.csv');
   const reader = new FileReader();
   reader.onload = async function(e) {
     try {
-      const data = JSON.parse(e.target.result);
-      if (!data.students || !Array.isArray(data.students)) throw new Error('bad format');
-      const ok = await confirmModal(`导入将覆盖当前数据（${data.students.length}人），确定？`, '覆盖导入', '取消', 'ok');
-      if (!ok) { event.target.value = ''; return; }
-      // merge: keep current logs, overwrite students/groups/prizes/settings
-      appState.students = data.students || appState.students;
-      appState.groups   = data.groups   || appState.groups;
-      appState.prizes   = data.prizes   || appState.prizes;
-      appState.logs      = data.logs      || appState.logs;
-      appState.awards    = data.awards    || appState.awards;
-      appState.pointRules = data.pointRules || appState.pointRules;
-      appState.settings   = { ...appState.settings, ...(data.settings || {}) };
-      saveState();
-      renderSettings();
-      showToast(`已导入 ${appState.students.length} 位同学`);
+      if (isCsv) {
+        /* ---- CSV 导入：按姓名匹配，更新积分 ---- */
+        let text = e.target.result;
+        // strip BOM
+        if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        if (!lines.length) throw new Error('empty');
+        // parse header to find column indices
+        const header = lines[0].split(',').map(c => c.replace(/^"|"$/g,'').trim());
+        const nameIdx  = header.findIndex(h => h.includes('姓名'));
+        const pointIdx = header.findIndex(h => h.includes('积分'));
+        if (nameIdx < 0 || pointIdx < 0) throw new Error('CSV 格式错误，需包含「姓名」和「积分」列');
+        const updates = [];
+        lines.slice(1).forEach(line => {
+          const cols = line.split(',').map(c => c.replace(/^"|"$/g,'').trim());
+          const name  = cols[nameIdx]  || '';
+          const pts   = parseFloat(cols[pointIdx]);
+          if (name && !isNaN(pts)) updates.push({ name, pts });
+        });
+        if (!updates.length) throw new Error('没有可用数据行');
+        const ok = await confirmModal(`将从 CSV 更新 ${updates.length} 位同学的积分，确定？`, '确认导入', '取消', 'ok');
+        if (!ok) { event.target.value = ''; return; }
+        let matched = 0;
+        updates.forEach(u => {
+          const stu = appState.students.find(s => s.name === u.name);
+          if (stu) { stu.points = u.pts; matched++; }
+        });
+        saveState();
+        renderSettings();
+        showToast(`✅ CSV 导入完成，已更新 ${matched} 位同学积分`);
+      } else {
+        /* ---- JSON 导入：完整恢复 ---- */
+        const data = JSON.parse(e.target.result);
+        if (!data.students || !Array.isArray(data.students)) throw new Error('JSON 格式错误');
+        const ok = await confirmModal(`导入将覆盖当前数据（${data.students.length}人），确定？`, '覆盖导入', '取消', 'ok');
+        if (!ok) { event.target.value = ''; return; }
+        appState.students   = data.students   || appState.students;
+        appState.groups     = data.groups     || appState.groups;
+        appState.prizes     = data.prizes     || appState.prizes;
+        appState.logs       = data.logs       || appState.logs;
+        appState.awards     = data.awards     || appState.awards;
+        appState.pointRules = data.pointRules || appState.pointRules;
+        appState.settings   = { ...appState.settings, ...(data.settings || {}) };
+        saveState();
+        renderSettings();
+        showToast(`✅ 已导入 ${appState.students.length} 位同学`);
+      }
     } catch(err) {
-      showToast('文件格式错误，请检查');
+      showToast('❌ ' + (err.message || '文件格式错误，请检查'));
     }
     event.target.value = '';
   };
-  reader.readAsText(file);
+  reader.readAsText(file, 'utf-8');
 }
 
 async function resetAllPoints() {
